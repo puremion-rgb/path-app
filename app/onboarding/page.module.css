@@ -1,0 +1,160 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.top {
+  display: flex;
+  justify-content: flex-end;
+  padding: 18px 20px 0;
+}
+
+.skip {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+}
+
+.body {
+  padding: 8px 24px 0;
+}
+
+.eyebrow {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 10px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.desc {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+.scene {
+  margin: 24px 0 0;
+  /* border-radius: var(--radius-xl); (이전 답변에서 제거됨) */
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  /* aspect-ratio: 388 / 351; 이 줄을 지워주세요 */
+  background: transparent;
+}
+
+.bubbleUser {
+  margin: 18px 24px 0;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  box-shadow: var(--shadow-card);
+}
+
+.bubbleAi {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 24px 0;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.botIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bg-flat);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy);
+  flex-shrink: 0;
+}
+
+.progressTrack {
+  height: 5px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.progressFill {
+  height: 100%;
+  width: 62%;
+  background: var(--navy);
+  border-radius: 999px;
+}
+
+.toolRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 24px 0;
+}
+
+.toolItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-card);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.toolIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--bg-flat);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy);
+  flex-shrink: 0;
+}
+
+.footer {
+  margin-top: auto;
+  padding: 20px 24px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.dots {
+  display: flex;
+  gap: 7px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+
+.dotActive {
+  background: var(--navy);
+  width: 20px;
+  border-radius: 4px;
+}

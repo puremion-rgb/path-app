@@ -1,0 +1,63 @@
+.group {
+  margin-top: 22px;
+}
+
+.groupTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+/* 프로토타입 "설정": 그룹별 흰색 라운드 카드 + 얇은 구분선 */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  padding: 0 18px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.switch {
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--border-strong);
+  position: relative;
+  border: none;
+  flex-shrink: 0;
+}
+
+.switchOn {
+  background: var(--navy);
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--white);
+  transition: transform 0.15s ease;
+}
+
+.knobOn {
+  transform: translateX(20px);
+}

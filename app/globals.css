@@ -1,0 +1,281 @@
+/* ---------- Tailwind v4 (path_zip 디자인 컴포넌트용) ----------
+   preflight(전역 리셋)은 제외하고 유틸리티/테마만 불러옵니다.
+   → 기존 path-app 화면(CSS Module)의 모양은 그대로 유지됩니다. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* path_zip 컴포넌트가 쓰는 색 토큰을 path-app 브랜드 팔레트에 매핑 */
+@theme {
+  --color-navy: #1e2761;
+  --color-navy-deep: #12173f;
+  --color-accent-orange: #f4a268;
+  --color-brand-blue: #2f6fed;
+  --color-surface: #ffffff;
+  --color-muted: #6b7488;
+  --color-line: #e6ebf6;
+  --color-red: #e0435c;
+  --color-green: #24a36a;
+}
+
+/* path_zip 컴포넌트(Sidebar/BottomNav 등)가 기대하는 최소 리셋만 추가 */
+@layer base {
+  ul,
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+  }
+  button {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    color: inherit;
+  }
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/Pretendard-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-display: swap;
+}
+
+:root {
+  --navy: #1e2761;
+  --navy-dark: #12173f;
+  --navy-soft: #334094;
+  --blue-info: #2f6fed;
+  --orange: #f4a268;
+  --orange-soft: #fce3cf;
+  --green: #24a36a;
+  --green-soft: #e2f6ec;
+  --red: #e0435c;
+  --bg: #f6faff;
+  --bg-flat: #eef2fb;
+  --white: #ffffff;
+  --text: #1b1f2a;
+  --text-muted: #6b7488;
+  --text-faint: #9aa2b5;
+  --border: #e6ebf6;
+  --border-strong: #d9e0f2;
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --shadow-card: 0 6px 20px rgba(30, 39, 97, 0.07);
+  --shadow-pop: 0 12px 32px rgba(30, 39, 97, 0.16);
+  --tab-height: 100px;
+  --header-height: 56px;
+  --screen-max: 480px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo",
+    "Malgun Gothic", sans-serif;
+  background: #dbe2f0;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  word-break: keep-all;
+}
+
+/* @layer base 로 넣어 Tailwind 유틸리티(text-white 등)가 링크에도 적용되게 함 */
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+    /* 브라우저 기본 테두리(검은 네모칸) 제거 — 각 화면에서 필요한 테두리는 직접 지정 */
+    border: 0;
+    outline: none;
+    background-color: transparent;
+    color: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.app-viewport {
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  background: #dbe2f0;
+}
+
+.app-screen {
+  width: 100%;
+  max-width: var(--screen-max);
+  min-height: 100dvh;
+  background: var(--bg);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 60px rgba(18, 23, 63, 0.12);
+}
+
+/* 풀블리드 화면(로그인)은 모든 폭에서 480px 프레임을 벗어납니다. */
+.app-viewport:has(.pz-fullbleed) {
+  justify-content: flex-start;
+  background: #eef2fb;
+}
+.app-screen:has(.pz-fullbleed) {
+  max-width: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+@media (min-width: 900px) {
+  .app-viewport {
+    justify-content: center;
+    background: #eef2fb;
+  }
+}
+
+/* PC(≥1024px)에서만 TabShell 화면이 480px 프레임을 벗어나 path_zip처럼
+   화면 전체(사이드바 + 본문)를 사용합니다. 모바일에서는 기존 path-app 그대로
+   480px 카드 프레임(그림자 포함)을 유지합니다. */
+@media (min-width: 1024px) {
+  .app-viewport:has(.pz-shell) {
+    justify-content: flex-start;
+    background: #eef2fb;
+  }
+  .app-screen:has(.pz-shell) {
+    max-width: none;
+    box-shadow: none;
+    background: transparent;
+  }
+}
+
+.screen-scroll {
+  flex: 1;
+  overflow-y: auto;
+  /* 하단 탭바는 홈 인디케이터가 있는 기기에서 safe-area만큼 더 커지는데
+     기존에는 이 여백이 스크롤 패딩에 반영되지 않아 목록이 길어지면
+     마지막 항목이 탭바 뒤로 겹쳐 보였습니다. env(...)를 더해 항상
+     탭바 실제 높이만큼 여백을 확보합니다. */
+  padding-bottom: calc(var(--tab-height) + 12px + env(safe-area-inset-bottom));
+}
+
+.screen-scroll.no-tab {
+  padding-bottom: 28px;
+}
+
+@media (min-width: 900px) {
+  .screen-scroll {
+    padding-bottom: 28px;
+  }
+}
+
+.container {
+  padding: 20px 20px 0;
+}
+
+/* Typography helpers */
+.h1 {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--navy);
+  margin: 0;
+}
+.h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.body-sm {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy-soft);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* 지도 그리드 배경 (my-app 참고) */
+.map-grid {
+  background-color: #e3ecdf;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--blue-info);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

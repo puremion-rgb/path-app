@@ -1,0 +1,62 @@
+.top {
+  padding: 18px 20px 14px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  border-radius: 999px;
+  padding: 13px 16px;
+  margin-top: 14px;
+  box-shadow: var(--shadow-card);
+  color: var(--text-muted);
+}
+
+.searchBar input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  background: transparent;
+}
+
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--tab-height);
+  background: var(--white);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 24px rgba(30, 39, 97, 0.1);
+  padding: 16px 20px 22px;
+  display: flex;
+  gap: 10px;
+}
+
+.sheetItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-flat);
+  border-radius: var(--radius-md);
+  padding: 14px 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  border: none;
+}
+
+.sheetIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--navy);
+}

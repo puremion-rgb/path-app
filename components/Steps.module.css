@@ -1,0 +1,93 @@
+.toolBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.stepList {
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: flex;
+  gap: 14px;
+  padding-bottom: 26px;
+  position: relative;
+}
+
+.step:last-child {
+  padding-bottom: 0;
+}
+
+.stepLine {
+  position: absolute;
+  left: 12px;
+  top: 26px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border-strong);
+}
+
+.step:last-child .stepLine {
+  display: none;
+}
+
+.stepMarker {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-strong);
+  color: transparent;
+  background: var(--white);
+  z-index: 1;
+}
+
+.stepMarker.done {
+  border-color: var(--green);
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.stepMarker.active {
+  border-color: var(--navy);
+  background: var(--white);
+}
+
+.stepMarker.active .pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--navy);
+}
+
+.stepTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.stepTitle.pending {
+  color: var(--text-faint);
+}
+
+.stepDesc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}

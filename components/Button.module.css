@@ -1,0 +1,50 @@
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 16px 18px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.primary {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.secondary {
+  background: var(--white);
+  color: var(--navy);
+  border: 1.5px solid var(--border-strong);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--navy);
+}
+
+.danger {
+  background: transparent;
+  color: var(--red);
+  font-weight: 600;
+}
+
+.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.sm {
+  padding: 10px 14px;
+  font-size: 14px;
+  width: auto;
+}
