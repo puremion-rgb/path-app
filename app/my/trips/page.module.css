@@ -1,0 +1,188 @@
+.tripCard {
+  display: block;
+  padding: 20px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.menuWrap {
+  position: relative;
+}
+
+.moreBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  background: var(--bg-flat);
+  color: var(--text-muted);
+  transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+}
+
+.moreBtn:active {
+  transform: scale(0.9);
+}
+
+.moreBtn:disabled {
+  opacity: 0.4;
+}
+
+.menuOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  z-index: 50;
+  min-width: 150px;
+  padding: 6px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-pop);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.12s ease;
+}
+
+.menuItem:active {
+  background: var(--bg-flat);
+}
+
+.menuItemDanger {
+  color: var(--red);
+}
+
+.menuDivider {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 4px;
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-strong);
+  margin: 0 2px;
+}
+
+.tripTitle {
+  margin-top: 6px;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.statusPill {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 6px 16px;
+  border: none;
+}
+
+.statusActive {
+  color: var(--navy);
+  background: #dfe6fb;
+}
+
+.statusArchived {
+  color: var(--text-muted);
+  background: var(--bg-flat);
+}
+
+.tripImage {
+  display: block;
+  margin-top: 14px;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  object-fit: cover;
+  background: var(--bg-flat);
+}
+
+.actionBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: none;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.actionBtn:active {
+  transform: scale(0.88);
+}
+
+.actionBtn:disabled {
+  opacity: 0.4;
+}
+
+.saveBtn {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.cancelBtn {
+  background: var(--bg-flat);
+  color: var(--text-muted);
+}
+
+.editRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.titleInput {
+  flex: 1;
+  min-width: 0;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--text);
+  border: 1.5px solid var(--navy);
+  border-radius: 10px;
+  padding: 9px 12px;
+  outline: none;
+  background: var(--white);
+}

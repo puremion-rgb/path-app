@@ -39,7 +39,7 @@ export default function SupportPage() {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 26 }}>
             <Link href="/my/support/tips">
-              <Button variant="secondary" icon={<Icon name="sparkle" size={17} />}>
+              <Button variant="secondary" icon={<Icon name="sparkle" size={17} filled />}>
                 일본 여행 팁
               </Button>
             </Link>

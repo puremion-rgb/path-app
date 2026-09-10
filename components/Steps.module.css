@@ -76,6 +76,12 @@
   background: var(--navy);
 }
 
+.stepMarker.error {
+  border-color: var(--red);
+  color: var(--red);
+  background: #fde3e3;
+}
+
 .stepTitle {
   font-size: 15px;
   font-weight: 700;

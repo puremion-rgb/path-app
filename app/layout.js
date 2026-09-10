@@ -1,4 +1,5 @@
 import "./globals.css";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata = {
   title: "PATH — 일본 여행 AI 에이전트",
@@ -18,9 +19,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ko">
       <body>
-        <div className="app-viewport">
-          <div className="app-screen">{children}</div>
-        </div>
+        <AuthProvider>
+          <div className="app-viewport">
+            <div className="app-screen">{children}</div>
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

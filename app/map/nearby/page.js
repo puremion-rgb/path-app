@@ -1,33 +1,83 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import Button from "@/components/Button";
 import Icon from "@/components/Icon";
+import { searchPlacesNearby, listFavorites, addFavorite, removeFavorite, getTrip } from "@/lib/apiClient";
+import { getCurrentTripId } from "@/lib/tripStore";
 
-// 프로토타입(12_주변_맛집_추천) 기준 화면.
-// 현재 일정의 이동 경로를 고려해 "센소지 주변" 맛집을 추천하는 맥락형 화면입니다.
-// 하단 탭 없이 "일정에 추가" CTA 로 끝나는 스택형 화면입니다.
-const FILTERS = ["맛집", "카페", "관광지"];
-
-const PLACES = [
-  { id: "sushidai", name: "스시 다이", cat: "스시", area: "츠키지", rating: 4.6, count: "2,345" },
-  { id: "ramen", name: "이마카리 라멘", cat: "라멘", area: "아사쿠사", rating: 4.5, count: "1,234" },
-  { id: "udon", name: "우동 명가", cat: "우동", area: "아사쿠사", rating: 4.5, count: "698" },
-];
+const FILTERS = { 맛집: "restaurant", 카페: "cafe", 관광지: "tourist_attraction" };
+const TOKYO_STATION = { lat: 35.681236, lng: 139.767125 };
 
 export default function NearbyPage() {
   const [filter, setFilter] = useState("맛집");
-  const [liked, setLiked] = useState(() => new Set());
+  const [places, setPlaces] = useState([]);
+  const [liked, setLiked] = useState(new Set());
+  const [center, setCenter] = useState(TOKYO_STATION);
+  const [centerName, setCenterName] = useState("도쿄역");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  function toggleLike(id) {
+  useEffect(() => {
+    (async () => {
+      const tripId = getCurrentTripId();
+      if (tripId) {
+        try {
+          const { trip } = await getTrip(tripId);
+          const first = trip.itinerary?.mapPoints?.[0];
+          if (first) {
+            setCenter({ lat: first.lat, lng: first.lng });
+            setCenterName(first.name);
+          }
+        } catch {}
+      }
+      try {
+        const favData = await listFavorites();
+        setLiked(new Set((favData.favorites || []).map((f) => f.placeId)));
+      } catch {}
+    })();
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    searchPlacesNearby({ lat: center.lat, lng: center.lng, radius: 1200, type: FILTERS[filter] })
+      .then((data) => setPlaces(data.places || []))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [filter, center]);
+
+  async function toggleLike(p) {
+    const isLiked = liked.has(p.placeId);
     setLiked((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      isLiked ? next.delete(p.placeId) : next.add(p.placeId);
       return next;
     });
+    try {
+      if (isLiked) {
+        await removeFavorite(p.placeId);
+      } else {
+        await addFavorite({
+          placeId: p.placeId,
+          name: p.name,
+          category: p.category,
+          area: p.address,
+          lat: p.location?.lat,
+          lng: p.location?.lng,
+        });
+      }
+    } catch {
+      // 실패 시 표시만 원복
+      setLiked((prev) => {
+        const next = new Set(prev);
+        isLiked ? next.add(p.placeId) : next.delete(p.placeId);
+        return next;
+      });
+    }
   }
 
   return (
@@ -36,21 +86,21 @@ export default function NearbyPage() {
       <div className="flex min-w-0 flex-1 flex-col lg:mx-auto lg:max-w-2xl lg:border-x lg:border-line">
         <header className="hidden shrink-0 items-center gap-2 border-b border-line px-10 py-6 lg:flex">
           <span className="text-[15px] font-medium text-muted">지도</span>
-          <h1 className="text-[20px] font-bold text-navy-deep">주변 맛집 추천</h1>
+          <h1 className="text-[20px] font-bold text-navy-deep">주변 {filter} 추천</h1>
         </header>
-        <Header title="주변 맛집 추천" className="lg:hidden" />
+        <Header title={`주변 ${filter} 추천`} className="lg:hidden" />
 
         <div className="screen-scroll no-tab">
           <div className="container">
             <div className="h1" style={{ fontSize: 20 }}>
-              센소지 주변에서 추천해요
+              {centerName} 주변에서 추천해요
             </div>
             <div className="body-sm" style={{ marginTop: 6 }}>
-              현재 일정의 이동 경로를 고려했어요.
+              Google Places로 실제 검색한 결과예요.
             </div>
 
             <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
-              {FILTERS.map((f) => (
+              {Object.keys(FILTERS).map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
@@ -70,10 +120,16 @@ export default function NearbyPage() {
               ))}
             </div>
 
+            {error && <p className="body-sm" style={{ color: "var(--red)", marginTop: 14 }}>{error}</p>}
+            {loading && <p className="body-sm" style={{ marginTop: 14 }}>검색 중...</p>}
+
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 18 }}>
-              {PLACES.map((p) => (
+              {!loading && places.length === 0 && (
+                <p className="body-sm">주변에서 결과를 찾지 못했어요.</p>
+              )}
+              {places.map((p) => (
                 <div
-                  key={p.id}
+                  key={p.placeId}
                   style={{
                     position: "relative",
                     display: "flex",
@@ -87,7 +143,7 @@ export default function NearbyPage() {
                   }}
                 >
                   <Link
-                    href={`/ai/place/${p.id}`}
+                    href={`/ai/place/${p.placeId}`}
                     style={{
                       width: 76,
                       height: 76,
@@ -102,57 +158,50 @@ export default function NearbyPage() {
                       color: "var(--text-faint)",
                     }}
                   >
-                    FOOD
+                    {filter.toUpperCase()}
                   </Link>
-                  <Link href={`/ai/place/${p.id}`} style={{ flex: 1 }}>
+                  <Link href={`/ai/place/${p.placeId}`} style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: 15.5 }}>{p.name}</div>
-                    <div
-                      style={{
-                        marginTop: 4,
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: "var(--orange)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                      }}
-                    >
-                      ★ {p.rating.toFixed(1)}{" "}
-                      <span style={{ color: "var(--text-muted)", fontWeight: 500 }}>({p.count})</span>
-                    </div>
+                    {p.rating != null && (
+                      <div
+                        style={{
+                          marginTop: 4,
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: "var(--orange)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        ★ {p.rating.toFixed(1)}{" "}
+                        <span style={{ color: "var(--text-muted)", fontWeight: 500 }}>({p.userRatingCount ?? 0})</span>
+                      </div>
+                    )}
                     <div className="body-sm" style={{ marginTop: 2 }}>
-                      {p.cat} · {p.area}
+                      {p.category}
                     </div>
                   </Link>
                   <button
-                    onClick={() => toggleLike(p.id)}
+                    onClick={() => toggleLike(p)}
                     aria-label="찜"
                     style={{
                       position: "absolute",
                       top: 12,
                       right: 12,
-                      color: liked.has(p.id) ? "var(--red)" : "var(--text-faint)",
+                      color: liked.has(p.placeId) ? "var(--red)" : "var(--text-faint)",
                     }}
                   >
-                    <Icon name="heart" size={20} filled={liked.has(p.id)} />
+                    <Icon name="heart" size={20} filled={liked.has(p.placeId)} />
                   </button>
                 </div>
               ))}
             </div>
 
-            <div
-              style={{
-                marginTop: 20,
-                background: "var(--bg-flat)",
-                borderRadius: 16,
-                padding: 16,
-              }}
-            >
+            <div style={{ marginTop: 20, background: "var(--bg-flat)", borderRadius: 16, padding: 16 }}>
               <div style={{ fontWeight: 800, fontSize: 13.5, color: "var(--navy)" }}>AI 추천 이유</div>
               <div className="body-sm" style={{ marginTop: 6, lineHeight: 1.6 }}>
-                센소지에서 이동이 편하고,
-                <br />
-                현재 일정의 점심 시간과 잘 맞아요.
+                {centerName}에서 도보로 이동하기 좋은 거리의 실제 장소들이에요.
               </div>
             </div>
           </div>
@@ -167,7 +216,9 @@ export default function NearbyPage() {
             padding: "12px 20px calc(12px + env(safe-area-inset-bottom))",
           }}
         >
-          <Button variant="primary">일정에 추가</Button>
+          <Link href="/favorites">
+            <Button variant="primary">찜 목록 보기</Button>
+          </Link>
         </div>
       </div>
     </div>

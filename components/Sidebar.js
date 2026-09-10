@@ -5,10 +5,13 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { IconHomeFilled, IconMap, IconSparkleDual, IconHeart, IconUser } from "./Icons";
 
+// 모바일 하단바와 마찬가지로, 5개 탭 모두 active 여부로만 스타일이 정해집니다.
+// (예전에는 홈/AI 여행만 fixed:true로 항상 네이비색을 쓰게 해서, 다른 화면을
+// 보고 있을 때도 이 두 탭만 마치 선택된 것처럼 보이는 문제가 있었습니다.)
 const TABS = [
-  { href: "/home", label: "홈", icon: IconHomeFilled, fixed: true },
+  { href: "/home", label: "홈", icon: IconHomeFilled },
   { href: "/map", label: "지도", icon: IconMap },
-  { href: "/ai", label: "AI 여행", icon: IconSparkleDual, fixed: true },
+  { href: "/ai", label: "AI 여행", icon: IconSparkleDual },
   { href: "/favorites", label: "찜", icon: IconHeart },
   { href: "/my", label: "MY", icon: IconUser },
 ];
@@ -38,7 +41,7 @@ export default function Sidebar() {
         <Image src="/logo/logo-text.svg" alt="PATH" width={270} height={63} className="w-full h-auto" />
       </Link>
       <ul className="flex flex-col gap-1">
-        {TABS.map(({ href, label, icon: Icon, fixed }) => {
+        {TABS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           // MY 서브메뉴가 활성화된 상태라면 MY 행 자체에는 표시줄을 그리지 않는다.
           const showIndicator = active && !(href === "/my" && activeSubHref);
@@ -50,7 +53,7 @@ export default function Sidebar() {
               <Link
                 href={href}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition ${
-                  fixed ? "text-navy" : active ? "text-navy" : "text-muted hover:text-navy"
+                  active ? "text-navy" : "text-muted hover:text-navy"
                 }`}
               >
                 <Icon className="h-6 w-6" />

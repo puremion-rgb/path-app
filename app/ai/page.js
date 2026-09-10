@@ -7,23 +7,48 @@ import Icon from "@/components/Icon";
 import Button from "@/components/Button";
 import BottomNav from "@/components/BottomNav";
 import { quickTags, suggestedPrompts } from "@/lib/mockData";
+import { setPendingRequest } from "@/lib/tripStore";
 import styles from "./page.module.css";
 
-const DEFAULT_PROMPT =
-  "내일 오전 9시 신주쿠에서 출발해서 센소지와 스카이트리를 가고 싶어. 부모님과 함께라 많이 걷지 않는 일정으로 만들어줘.";
+const PROMPT_PLACEHOLDER =
+  "예: 내일 오전 9시 신주쿠에서 출발해서 센소지와 스카이트리를 가고 싶어. 부모님과 함께라 많이 걷지 않는 일정으로 만들어줘.";
 
 const PC_CONDITIONS = ["도보 최소", "환승 최소", "맛집 포함"];
 
+// 빠른 조건 태그를 누르면 그 문구를 대화창(요청 텍스트) 끝에 붙여주고,
+// 다시 누르면 그 문구만 정확히 찾아서 지워줍니다 — 버튼이 눌렸는지 아닌지는
+// "그 단어가 대화창 안에 있는지"로 판단하기 때문에, 사용자가 텍스트를 직접 지워도
+// 다음 클릭부터는 다시 정상적으로 추가/삭제됩니다.
+function appendTagToText(current, tag) {
+  const trimmed = current.trimEnd();
+  if (!trimmed) return tag;
+  if (trimmed.includes(tag)) return current; // 이미 들어있으면 중복 추가하지 않음
+  const sep = /[.!?]$/.test(trimmed) ? " " : ", ";
+  return `${trimmed}${sep}${tag}`;
+}
+
+function removeTagFromText(current, tag) {
+  if (current.includes(`, ${tag}`)) return current.replace(`, ${tag}`, "").trimEnd();
+  if (current.includes(` ${tag}`)) return current.replace(` ${tag}`, "").trimEnd();
+  return current.replace(tag, "").trimEnd();
+}
+
 export default function AiRequestPage() {
   const router = useRouter();
-  const [text, setText] = useState(DEFAULT_PROMPT);
-  const [tags, setTags] = useState(() => new Set(["도보 최소", "환승 최소", "가족 여행"]));
-  const [pcTags, setPcTags] = useState(() => new Set(["환승 최소"]));
+  const [text, setText] = useState("");
+  const [tags, setTags] = useState(() => new Set());
+  const [pcTags, setPcTags] = useState(() => new Set());
 
   function toggleTag(tag) {
     setTags((prev) => {
       const next = new Set(prev);
-      next.has(tag) ? next.delete(tag) : next.add(tag);
+      if (next.has(tag)) {
+        next.delete(tag);
+        setText((t) => removeTagFromText(t, tag));
+      } else {
+        next.add(tag);
+        setText((t) => appendTagToText(t, tag));
+      }
       return next;
     });
   }
@@ -31,13 +56,21 @@ export default function AiRequestPage() {
   function togglePcTag(tag) {
     setPcTags((prev) => {
       const next = new Set(prev);
-      next.has(tag) ? next.delete(tag) : next.add(tag);
+      if (next.has(tag)) {
+        next.delete(tag);
+        setText((t) => removeTagFromText(t, tag));
+      } else {
+        next.add(tag);
+        setText((t) => appendTagToText(t, tag));
+      }
       return next;
     });
   }
 
   function submit() {
     if (!text.trim()) return;
+    // 조건 문구는 이미 위에서 text에 반영되어 있으므로, message 하나만 보내면 됩니다.
+    setPendingRequest({ message: text.trim(), conditions: [...tags, ...pcTags] });
     router.push("/ai/analyzing");
   }
 
@@ -61,6 +94,7 @@ export default function AiRequestPage() {
               className={styles.textarea}
               value={text}
               maxLength={500}
+              placeholder={PROMPT_PLACEHOLDER}
               onChange={(e) => setText(e.target.value)}
             />
             <div className={styles.promptFooter}>
@@ -93,14 +127,18 @@ export default function AiRequestPage() {
 
           <div className={styles.sectionTitle}>이런 요청도 많이 해요</div>
           {suggestedPrompts.map((p) => (
-            <button key={p} className={styles.suggestItem} onClick={() => setText(p)}>
+            <button
+              key={p}
+              className={styles.suggestItem}
+              onClick={() => setText((t) => appendTagToText(t, p))}
+            >
               {p}
             </button>
           ))}
         </div>
 
         <div className={styles.footer}>
-          <Button variant="primary" onClick={submit} icon={<Icon name="sparkle" size={17} />}>
+          <Button variant="primary" onClick={submit} icon={<Icon name="sparkle" size={17} filled />}>
             여행 일정 만들기
           </Button>
         </div>
@@ -132,6 +170,7 @@ export default function AiRequestPage() {
                 <button
                   key={tag}
                   onClick={() => togglePcTag(tag)}
+                  aria-pressed={pcTags.has(tag)}
                   className={`rounded-full border px-4 py-2.5 text-[13px] font-semibold transition ${
                     pcTags.has(tag)
                       ? "border-navy bg-[#dfe6fb] text-navy-deep"

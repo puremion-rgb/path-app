@@ -1,39 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
 
-// 프로토타입용 간이 로그인 게이트.
-// 실제 백엔드가 없으므로 localStorage("path_auth") 플래그로만 판단합니다.
-// 로그인 화면(app/login/page.js)에서 로그인/가입 시 이 값을 "1"로 설정합니다.
-export function isLoggedIn() {
-  try {
-    return typeof window !== "undefined" && localStorage.getItem("path_auth") === "1";
-  } catch {
-    return false;
-  }
-}
-
-export function setLoggedIn(v) {
-  try {
-    if (v) localStorage.setItem("path_auth", "1");
-    else localStorage.removeItem("path_auth");
-  } catch {}
-}
-
+// 실제 로그인 세션(/api/auth/me, httpOnly 쿠키)을 확인하는 라우트 가드입니다.
 export default function AuthGuard({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [ready, setReady] = useState(false);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (isLoggedIn()) {
-      setReady(true);
-    } else {
+    if (!loading && !user) {
       router.replace(`/login?next=${encodeURIComponent(pathname || "/home")}`);
     }
-  }, [router, pathname]);
+  }, [loading, user, router, pathname]);
 
-  if (!ready) return null;
+  if (loading || !user) return null;
   return children;
 }

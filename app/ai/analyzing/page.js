@@ -8,10 +8,8 @@ import Button from "@/components/Button";
 import Card from "@/components/Card";
 import { StepChecklist, ToolBar } from "@/components/Steps";
 import { analysisSteps } from "@/lib/mockData";
-
-// 실제 백엔드 없이도 실패 UI가 "실제로" 동작하도록, 분석 중 일정 확률로
-// 네트워크 오류 상황을 시뮬레이션합니다. (QA/데모용으로 ?fail=1 을 붙이면 강제로 재현 가능)
-const RANDOM_FAILURE_RATE = 0.2;
+import { planTrip } from "@/lib/apiClient";
+import { getPendingRequest, clearPendingRequest, setCurrentTripId } from "@/lib/tripStore";
 
 export default function AiAnalyzingPage() {
   return (
@@ -24,46 +22,50 @@ export default function AiAnalyzingPage() {
 function AiAnalyzingInner() {
   const router = useRouter();
   const params = useSearchParams();
-  const forcedFail = params.get("fail") === "1";
-  const [step, setStep] = useState(0);
+  const [statusMap, setStatusMap] = useState({});
   const [failed, setFailed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const startedRef = useRef(false);
 
-  // 이번 시도에서 실패가 발생할지, 발생한다면 어느 단계에서 발생할지를
-  // 최초 1회만 결정합니다(리렌더될 때마다 확률이 바뀌지 않도록).
-  const failPlan = useRef(null);
-  if (failPlan.current === null) {
-    if (forcedFail) {
-      failPlan.current = 0;
-    } else {
-      const willFail = Math.random() < RANDOM_FAILURE_RATE;
-      failPlan.current = willFail ? Math.floor(Math.random() * analysisSteps.length) : -1;
+  function start() {
+    const pending = getPendingRequest();
+    if (!pending?.message) {
+      router.replace("/ai");
+      return;
     }
+    setFailed(false);
+    setErrorMessage("");
+    setStatusMap({});
+
+    planTrip(pending, (stepId, patch) => {
+      setStatusMap((prev) => ({ ...prev, [stepId]: patch.status }));
+    })
+      .then((trip) => {
+        clearPendingRequest();
+        setCurrentTripId(trip.id);
+        setStatusMap((prev) => {
+          const next = { ...prev };
+          for (const s of analysisSteps) if (!next[s.id]) next[s.id] = "done";
+          return next;
+        });
+        setTimeout(() => router.push("/ai/result"), 400);
+      })
+      .catch((err) => {
+        setErrorMessage(err.message || "네트워크 오류가 발생했어요");
+        setFailed(true);
+      });
   }
 
   useEffect(() => {
-    if (failed) return;
-
-    if (failPlan.current !== -1 && step === failPlan.current) {
-      const t = setTimeout(() => setFailed(true), 600);
-      return () => clearTimeout(t);
-    }
-
-    if (step >= analysisSteps.length) {
-      const t = setTimeout(() => router.push("/ai/result"), 500);
-      return () => clearTimeout(t);
-    }
-    const t = setTimeout(() => setStep((s) => s + 1), 750);
-    return () => clearTimeout(t);
-  }, [step, failed, router]);
+    if (startedRef.current) return;
+    startedRef.current = true;
+    start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function retry() {
-    // 재시도 버튼을 누르면 새 분석 요청으로 취급해 처음부터 다시 진행합니다.
-    // (강제 실패용 ?fail=1 파라미터가 있었다면 제거해 다음 시도는 정상적으로 재시뮬레이션합니다.)
-    router.replace("/ai/analyzing");
-    const willFail = Math.random() < RANDOM_FAILURE_RATE;
-    failPlan.current = willFail ? Math.floor(Math.random() * analysisSteps.length) : -1;
-    setStep(0);
-    setFailed(false);
+    startedRef.current = true;
+    start();
   }
 
   return (
@@ -89,7 +91,7 @@ function AiAnalyzingInner() {
             </div>
             <div className="h2">일정을 만들지 못했어요</div>
             <div className="body-sm" style={{ marginTop: 6, marginBottom: 22 }}>
-              네트워크 오류가 발생했어요
+              {errorMessage || "네트워크 오류가 발생했어요"}
               <br />
               잠시 후 다시 시도해주세요
             </div>
@@ -110,19 +112,19 @@ function AiAnalyzingInner() {
         ) : (
           <>
             <div style={{ display: "flex", justifyContent: "center", marginTop: 20, marginBottom: 14, color: "var(--navy)" }}>
-              <Icon name="sparkle" size={34} />
+              <Icon name="sparkle" size={34} filled />
             </div>
             <div className="h2" style={{ textAlign: "center" }}>
               여행 일정을 분석하고 있어요
             </div>
             <div className="body-sm" style={{ textAlign: "center", marginTop: 4, marginBottom: 30 }}>
-              잠시만 기다려주세요.
+              AI가 실제 지도·경로 데이터를 조회하는 중이에요. 잠시만 기다려주세요.
             </div>
 
-            <StepChecklist steps={analysisSteps} activeIndex={step} />
+            <StepChecklist steps={analysisSteps} statusMap={statusMap} />
 
             <Card style={{ marginTop: 26 }}>
-              <ToolBar />
+              <ToolBar tools={["Google Places", "Google Routes", "ODPT", "RAG"]} />
               <div className="body-sm" style={{ marginTop: 6 }}>
                 필요한 정보를 조합해 일정에 반영하고 있어요.
               </div>

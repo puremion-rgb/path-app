@@ -6,7 +6,8 @@ import TabShell from "@/components/TabShell";
 import Header from "@/components/Header";
 import Card from "@/components/Card";
 import Icon from "@/components/Icon";
-import { setLoggedIn } from "@/components/AuthGuard";
+import { useAuth } from "@/components/AuthProvider";
+import { logout } from "@/lib/apiClient";
 
 const MENU = [
   { href: "/my/trips", label: "내 여행 일정" },
@@ -18,9 +19,13 @@ const MENU = [
 
 export default function MyPage() {
   const router = useRouter();
+  const { user, refresh } = useAuth();
 
-  function handleLogout() {
-    setLoggedIn(false);
+  async function handleLogout() {
+    try {
+      await logout();
+    } catch {}
+    await refresh();
     router.replace("/login");
   }
 
@@ -40,8 +45,8 @@ export default function MyPage() {
                 }}
               />
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 800, fontSize: 16 }}>이름</div>
-                <div className="body-sm">이메일</div>
+                <div style={{ fontWeight: 800, fontSize: 16 }}>{user?.name || "이름 미설정"}</div>
+                <div className="body-sm">{user?.email || ""}</div>
               </div>
               <Icon name="chevronRight" size={20} />
             </Card>

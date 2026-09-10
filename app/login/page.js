@@ -5,14 +5,16 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { setLoggedIn } from "@/components/AuthGuard";
+import { useAuth } from "@/components/AuthProvider";
+import { login as apiLogin, register as apiRegister } from "@/lib/apiClient";
 
-function LoginForm({ tab, setTab, onAuth, size = "base" }) {
+function LoginForm({ tab, setTab, form, setForm, onSubmit, submitting, error, size = "base" }) {
   const big = size === "lg";
   return (
     <>
       <div className={`grid grid-cols-2 gap-0 rounded-full bg-[#eef2fb] p-1 ${big ? "mt-10" : "mt-8"}`}>
         <button
+          type="button"
           onClick={() => setTab("login")}
           className={`h-12 rounded-full text-[15px] font-bold transition ${
             tab === "login" ? "bg-navy text-white" : "bg-transparent text-navy-deep/60"
@@ -21,6 +23,7 @@ function LoginForm({ tab, setTab, onAuth, size = "base" }) {
           로그인
         </button>
         <button
+          type="button"
           onClick={() => setTab("signup")}
           className={`h-12 rounded-full text-[15px] font-bold transition ${
             tab === "signup" ? "bg-navy text-white" : "bg-transparent text-navy-deep/60"
@@ -34,26 +37,38 @@ function LoginForm({ tab, setTab, onAuth, size = "base" }) {
         className="mt-6 flex flex-col gap-3"
         onSubmit={(e) => {
           e.preventDefault();
-          onAuth();
+          onSubmit();
         }}
       >
         {tab === "signup" && (
           <input
             type="text"
             placeholder="이름"
+            value={form.name}
+            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
             className="h-14 rounded-2xl border border-line bg-white px-5 text-[15px] outline-none focus:border-navy"
           />
         )}
         <input
           type="email"
           placeholder="이메일"
+          value={form.email}
+          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
           className="h-14 rounded-2xl border border-line bg-white px-5 text-[15px] outline-none focus:border-navy"
         />
         <input
           type="password"
-          placeholder="비밀번호"
+          placeholder="비밀번호 (6자 이상)"
+          value={form.password}
+          onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
           className="h-14 rounded-2xl border border-line bg-white px-5 text-[15px] outline-none focus:border-navy"
         />
+
+        {error && (
+          <div className="rounded-xl bg-[#fde3e3] px-4 py-3 text-[13px] font-semibold text-[#c23b3b]">
+            {error}
+          </div>
+        )}
 
         <label className="mt-1 flex items-center gap-2 text-[13px] text-navy-deep/80">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-navy text-white">
@@ -64,9 +79,10 @@ function LoginForm({ tab, setTab, onAuth, size = "base" }) {
 
         <button
           type="submit"
-          className="mt-3 flex h-14 w-full items-center justify-center rounded-2xl bg-navy text-[16px] font-bold text-white"
+          disabled={submitting}
+          className="mt-3 flex h-14 w-full items-center justify-center rounded-2xl bg-navy text-[16px] font-bold text-white disabled:opacity-60"
         >
-          {tab === "login" ? "로그인" : "가입하기"}
+          {submitting ? "처리 중..." : tab === "login" ? "로그인" : "가입하기"}
         </button>
       </form>
 
@@ -77,10 +93,20 @@ function LoginForm({ tab, setTab, onAuth, size = "base" }) {
       </div>
 
       <div className={`flex justify-center gap-4 ${big ? "" : "pb-16"}`}>
-        <button className="flex h-14 w-14 items-center justify-center rounded-full border border-line bg-white text-[18px] font-bold text-[#4285F4]">
+        <button
+          type="button"
+          disabled
+          title="데모 범위 밖입니다. 이메일/비밀번호로 가입해주세요."
+          className="flex h-14 w-14 items-center justify-center rounded-full border border-line bg-white text-[18px] font-bold text-[#4285F4] opacity-40"
+        >
           G
         </button>
-        <button className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FEE500] text-[18px]">
+        <button
+          type="button"
+          disabled
+          title="데모 범위 밖입니다. 이메일/비밀번호로 가입해주세요."
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FEE500] text-[18px] opacity-40"
+        >
           💬
         </button>
       </div>
@@ -90,16 +116,37 @@ function LoginForm({ tab, setTab, onAuth, size = "base" }) {
 
 export default function LoginPage() {
   const [tab, setTab] = useState("login"); // login | signup
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
+  const { refresh } = useAuth();
 
-  function handleAuth() {
-    setLoggedIn(true);
-    let next = "/home";
+  async function handleAuth() {
+    setError("");
+    if (!form.email.trim() || !form.password) {
+      setError("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
+    setSubmitting(true);
     try {
-      const q = new URLSearchParams(window.location.search).get("next");
-      if (q && q.startsWith("/")) next = q;
-    } catch {}
-    router.replace(next);
+      if (tab === "login") {
+        await apiLogin({ email: form.email.trim(), password: form.password });
+      } else {
+        await apiRegister({ email: form.email.trim(), password: form.password, name: form.name.trim() });
+      }
+      await refresh();
+      let next = "/home";
+      try {
+        const q = new URLSearchParams(window.location.search).get("next");
+        if (q && q.startsWith("/")) next = q;
+      } catch {}
+      router.replace(next);
+    } catch (e) {
+      setError(e.message || "요청 처리 중 오류가 발생했습니다.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -113,7 +160,7 @@ export default function LoginPage() {
           </h2>
           <p className="mt-1 text-[13px] text-muted">여행 계획부터 이동경로까지 한 번에</p>
         </div>
-        <LoginForm tab={tab} setTab={setTab} onAuth={handleAuth} />
+        <LoginForm tab={tab} setTab={setTab} form={form} setForm={setForm} onSubmit={handleAuth} submitting={submitting} error={error} />
       </div>
 
       {/* PC: 좌측 브랜드 패널 + 우측 로그인 폼의 2단 레이아웃 */}
@@ -152,7 +199,7 @@ export default function LoginPage() {
             <p className="mt-1 text-[14px] text-muted">
               {tab === "login" ? "다시 만나서 반가워요." : "몇 가지 정보만 입력하면 시작할 수 있어요."}
             </p>
-            <LoginForm tab={tab} setTab={setTab} onAuth={handleAuth} size="lg" />
+            <LoginForm tab={tab} setTab={setTab} form={form} setForm={setForm} onSubmit={handleAuth} submitting={submitting} error={error} size="lg" />
           </div>
         </div>
       </div>

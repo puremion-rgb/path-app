@@ -1,11 +1,47 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/Button";
 import Icon from "@/components/Icon";
+import { getTrip } from "@/lib/apiClient";
+import { getCurrentTripId } from "@/lib/tripStore";
 
-// 추천 여행 일정에서 "일정 추가"를 누르면 나오는 완료 화면 (프로토타입 "일정 추가 완료" / my-app 참고)
+// 추천 여행 일정에서 "일정 추가"를 누르면 나오는 완료 화면.
+// 일정은 AI가 만드는 시점에 이미 DB(Trip)에 저장되어 있으므로, 여기서는
+// 방금 만든 일정 요약을 실제 데이터로 보여주기만 합니다.
 export default function AiAddedPage() {
+  const [trip, setTrip] = useState(null);
+
+  useEffect(() => {
+    const id = getCurrentTripId();
+    if (!id) return;
+    getTrip(id).then((data) => setTrip(data.trip)).catch(() => {});
+  }, []);
+
+  const days = trip?.itinerary?.days || [];
+
+  // "관광 4곳 · 맛집 2곳 · 환승 1회"처럼 종류별로 몇 곳인지 보여줍니다.
+  // AI가 각 항목에 붙인 category(관광/맛집/카페/쇼핑/숙소/이동)를 기준으로 세고,
+  // "이동"(단순 이동/환승 안내)은 방문지가 아니므로 개수에서 제외합니다.
+  const CATEGORY_ORDER = ["관광", "맛집", "카페", "쇼핑", "숙소"];
+  const categoryCounts = {};
+  let totalVisitCount = 0;
+  for (const d of days) {
+    for (const item of d.items || []) {
+      if (item.category === "이동") continue;
+      totalVisitCount += 1;
+      if (item.category) categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1;
+    }
+  }
+  const categorySummary = CATEGORY_ORDER
+    .filter((c) => categoryCounts[c] > 0)
+    .map((c) => `${c} ${categoryCounts[c]}곳`);
+  // 옛날에 만든 일정처럼 category 정보가 아예 없으면 전체 방문지 수로 대체합니다.
+  const visitSummary =
+    categorySummary.length > 0 ? categorySummary.join(" · ") : `방문지 ${totalVisitCount}곳`;
+  const transfers = trip?.itinerary?.routeSummary?.transfers;
+
   return (
     <main
       style={{
@@ -51,12 +87,12 @@ export default function AiAddedPage() {
           boxShadow: "var(--shadow-card)",
         }}
       >
-        <p style={{ fontSize: 18, fontWeight: 800 }}>도쿄 2박 3일</p>
+        <p style={{ fontSize: 18, fontWeight: 800 }}>{trip?.title || "새 여행 일정"}</p>
         <p className="body-sm" style={{ marginTop: 8 }}>
-          4월 12일(토) ~ 4월 14일(월)
+          {days.map((d) => d.date).filter(Boolean).join(" · ") || "일정을 불러오는 중..."}
         </p>
         <p style={{ marginTop: 12, fontSize: 14, fontWeight: 700, color: "var(--navy-dark)" }}>
-          관광 4곳 · 맛집 2곳 · 환승 1회
+          {visitSummary}{transfers ? ` · ${transfers}` : ""}
         </p>
       </div>
 

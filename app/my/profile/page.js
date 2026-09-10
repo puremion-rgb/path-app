@@ -1,10 +1,36 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import TabShell from "@/components/TabShell";
 import Header from "@/components/Header";
 import Button from "@/components/Button";
+import { useAuth } from "@/components/AuthProvider";
+import { updateProfile } from "@/lib/apiClient";
 
 export default function ProfilePage() {
+  const { user, refresh } = useAuth();
+  const [name, setName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (user?.name) setName(user.name);
+  }, [user]);
+
+  async function handleSave() {
+    setSaving(true);
+    setMessage("");
+    try {
+      await updateProfile({ name });
+      await refresh();
+      setMessage("저장되었습니다.");
+    } catch (e) {
+      setMessage(e.message || "저장에 실패했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <TabShell crumb="MY" title="프로필 수정">
       <Header title="프로필 수정" backHref="/my" className="lg:hidden" />
@@ -20,10 +46,12 @@ export default function ProfilePage() {
           }}
         />
         <button
+          disabled
+          title="데모 범위 밖입니다"
           style={{
             background: "none",
             border: "none",
-            color: "var(--text-muted)",
+            color: "var(--text-faint)",
             fontSize: 13,
             marginTop: 10,
           }}
@@ -36,6 +64,8 @@ export default function ProfilePage() {
             이름
           </label>
           <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             style={{
               width: "100%",
               padding: "14px 16px",
@@ -61,14 +91,18 @@ export default function ProfilePage() {
               background: "var(--bg-flat)",
               color: "var(--text-muted)",
             }}
-            defaultValue="user@path-travel.com"
+            value={user?.email || ""}
             disabled
           />
 
-          <Button variant="primary">저장하기</Button>
-          <div className="body-sm" style={{ textAlign: "center", marginTop: 14 }}>
-            가입일 2026.01.15 · 마지막 로그인 오늘
-          </div>
+          <Button variant="primary" onClick={handleSave} disabled={saving}>
+            {saving ? "저장 중..." : "저장하기"}
+          </Button>
+          {message && (
+            <div className="body-sm" style={{ textAlign: "center", marginTop: 14 }}>
+              {message}
+            </div>
+          )}
         </div>
       </div>
       </div>

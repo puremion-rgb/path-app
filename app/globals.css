@@ -150,7 +150,14 @@ body {
 }
 
 .app-viewport {
+  /* 예전에는 min-height만 있어서 내용이 길어지면 이 프레임 자체가 뷰포트보다
+     커지고, 실제 스크롤은 문서(body) 스크롤에 의존했습니다. 이 앱을 뷰포트가
+     고정된 곳(예: 앱 내 미리보기 화면)에 넣으면 문서 스크롤이 아예 동작하지
+     않아 "스크롤이 안 내려가요" 문제가 생길 수 있어서, 프레임 높이를 뷰포트에
+     고정하고 각 화면의 .screen-scroll이 내부적으로 스크롤되게 바꿨습니다. */
+  height: 100dvh;
   min-height: 100dvh;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   background: #dbe2f0;
@@ -159,20 +166,31 @@ body {
 .app-screen {
   width: 100%;
   max-width: var(--screen-max);
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
   background: var(--bg);
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   box-shadow: 0 0 60px rgba(18, 23, 63, 0.12);
 }
 
-/* 풀블리드 화면(로그인)은 모든 폭에서 480px 프레임을 벗어납니다. */
+/* 풀블리드 화면(로그인)은 모든 폭에서 480px 프레임을 벗어나고, 내부에
+   .screen-scroll 없이 화면 자체(문서) 스크롤에 기대는 구조라 높이 제한을
+   그대로 풀어줍니다. */
 .app-viewport:has(.pz-fullbleed) {
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible;
   justify-content: flex-start;
   background: #eef2fb;
 }
 .app-screen:has(.pz-fullbleed) {
+  height: auto;
+  max-height: none;
+  min-height: 100dvh;
+  overflow: visible;
   max-width: none;
   box-shadow: none;
   background: transparent;

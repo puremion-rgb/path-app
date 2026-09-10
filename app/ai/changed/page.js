@@ -1,14 +1,34 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Card from "@/components/Card";
 import Timeline from "@/components/Timeline";
 import Button from "@/components/Button";
-import { changedSchedule } from "@/lib/mockData";
+import { getLastChangeDiff } from "@/lib/tripStore";
 
 export default function AiChangedPage() {
-  const { summary, before, after, date, items } = changedSchedule;
+  const router = useRouter();
+  const [diff, setDiff] = useState(null);
+
+  useEffect(() => {
+    const d = getLastChangeDiff();
+    if (!d?.trip) {
+      router.replace("/ai/result");
+      return;
+    }
+    setDiff(d);
+  }, [router]);
+
+  if (!diff) return null;
+
+  const { trip, beforeItinerary } = diff;
+  const days = trip.itinerary.days || [];
+  const beforeDays = beforeItinerary?.days || [];
+  const day = days[0];
+
   return (
     <div className="screen-scroll no-tab">
       <Header title="변경된 일정" backHref="/ai/chat" />
@@ -25,34 +45,34 @@ export default function AiChangedPage() {
             textAlign: "center",
           }}
         >
-          {summary}
+          {trip.itinerary.summary || "일정이 변경되었습니다."}
         </div>
 
-        <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8 }}>변경 전</div>
-            <Card>
-              <div className="body-sm">{before.title}</div>
-              <div style={{ fontWeight: 800, fontSize: 15, marginTop: 2 }}>{before.value}</div>
-              <div className="body-sm" style={{ marginTop: 14 }}>{before.metaLabel}</div>
-              <div style={{ fontWeight: 800, fontSize: 15, marginTop: 2 }}>{before.metaValue}</div>
-            </Card>
+        {beforeDays.length > 0 && (
+          <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8 }}>변경 전 요약</div>
+              <Card>
+                <div className="body-sm">{beforeItinerary.summary || "-"}</div>
+              </Card>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8, color: "#f97316" }}>변경 후 요약</div>
+              <Card style={{ border: "1.5px solid var(--orange)" }}>
+                <div className="body-sm" style={{ color: "var(--navy)" }}>{trip.itinerary.summary || "-"}</div>
+              </Card>
+            </div>
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8, color: "#f97316" }}>변경 후</div>
-            <Card style={{ border: "1.5px solid var(--orange)" }}>
-              <div className="body-sm" style={{ color: "#f97316" }}>{after.title}</div>
-              <div style={{ fontWeight: 800, fontSize: 15, marginTop: 2, color: "var(--navy)" }}>{after.value}</div>
-              <div className="body-sm" style={{ marginTop: 14, color: "#f97316" }}>{after.metaLabel}</div>
-              <div style={{ fontWeight: 800, fontSize: 15, marginTop: 2, color: "var(--navy)" }}>{after.metaValue}</div>
-            </Card>
-          </div>
-        </div>
+        )}
 
-        <Card>
-          <div style={{ fontWeight: 800, marginBottom: 14 }}>{date}</div>
-          <Timeline items={items} />
-        </Card>
+        {day && (
+          <Card>
+            <div style={{ fontWeight: 800, marginBottom: 14 }}>
+              {day.label} · {day.date}
+            </div>
+            <Timeline items={day.items || []} />
+          </Card>
+        )}
 
         <Link href="/ai/result">
           <Button variant="primary" style={{ marginTop: 20 }}>
