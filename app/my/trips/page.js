@@ -126,10 +126,14 @@ export default function MyTripsPage() {
   async function handleShare(t, e) {
     e.stopPropagation();
     setMenuOpenId(null);
+    // 예전에는 여기서 그냥 "/my/trips"(로그인해야 보이는 내 목록) 링크를
+    // 공유해서, 받는 사람이 로그인 없이는 정작 일정 내용을 볼 수 없었습니다.
+    // 이제 로그인 없이도 이 일정만 읽기 전용으로 볼 수 있는 /share/[id] 페이지가
+    // 생겨서, 그 실제 일정 링크를 공유합니다.
     const shareData = {
       title: t.title,
       text: `PATH로 만든 여행 일정: ${t.title}`,
-      url: typeof window !== "undefined" ? `${window.location.origin}/my/trips` : undefined,
+      url: typeof window !== "undefined" ? `${window.location.origin}/share/${t.id}` : undefined,
     };
     try {
       if (typeof navigator !== "undefined" && navigator.share) {

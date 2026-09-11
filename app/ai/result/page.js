@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
@@ -10,13 +10,23 @@ import Icon from "@/components/Icon";
 import Spinner from "@/components/Spinner";
 import { getTrip } from "@/lib/apiClient";
 import { getCurrentTripId } from "@/lib/tripStore";
+import { exportItineraryAsImage, exportItineraryAsPdf } from "@/lib/exportItinerary";
 import styles from "./page.module.css";
+
+// 데이터/와이파이가 불안정한 해외 현지에서도 미리 저장해둔 파일로 일정을
+// 볼 수 있도록, 화면에 보이는 전체 일정(모든 날짜)을 이미지나 PDF로
+// 내보낼 수 있게 했습니다.
+function toExportItems(items) {
+  return (items || []).map((item) => ({ ...item, placeId: undefined }));
+}
 
 export default function AiResultPage() {
   const router = useRouter();
   const [trip, setTrip] = useState(null);
   const [dayIdx, setDayIdx] = useState(0);
   const [error, setError] = useState("");
+  const [exporting, setExporting] = useState(""); // "" | "image" | "pdf"
+  const exportRef = useRef(null);
 
   useEffect(() => {
     const tripId = getCurrentTripId();
@@ -59,6 +69,23 @@ export default function AiResultPage() {
 
   const days = trip.itinerary.days || [];
   const day = days[dayIdx] || days[0];
+
+  async function handleExport(type) {
+    if (exporting || !exportRef.current) return;
+    setExporting(type);
+    try {
+      if (type === "image") {
+        await exportItineraryAsImage(exportRef.current, trip.title);
+      } else {
+        await exportItineraryAsPdf(exportRef.current, trip.title);
+      }
+    } catch (err) {
+      console.error("[ai-result] 일정 내보내기 실패:", err);
+      alert("일정을 저장하는 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setExporting("");
+    }
+  }
 
   return (
     <div className="screen-scroll no-tab">
@@ -132,6 +159,29 @@ export default function AiResultPage() {
             </Button>
           </Link>
         )}
+
+        {/* 여행지에서 데이터 없이도 일정을 볼 수 있도록 이미지/PDF로 저장합니다.
+            (아래 exportRef 영역 — 화면 밖에 그려둔 "모든 날짜" 전체 일정을 찍습니다) */}
+        <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+          <Button
+            variant="secondary"
+            style={{ flex: 1 }}
+            icon={<Icon name="download" size={15} strokeWidth={1.7} />}
+            disabled={!!exporting}
+            onClick={() => handleExport("image")}
+          >
+            {exporting === "image" ? "저장 중..." : "이미지로 저장"}
+          </Button>
+          <Button
+            variant="secondary"
+            style={{ flex: 1 }}
+            icon={<Icon name="download" size={15} strokeWidth={1.7} />}
+            disabled={!!exporting}
+            onClick={() => handleExport("pdf")}
+          >
+            {exporting === "pdf" ? "저장 중..." : "PDF로 저장"}
+          </Button>
+        </div>
       </div>
 
       <div className={styles.footer}>
@@ -141,6 +191,57 @@ export default function AiResultPage() {
         <Link href="/ai/added" style={{ flex: 1 }}>
           <Button variant="primary">일정 추가</Button>
         </Link>
+      </div>
+
+      {/* 화면에는 안 보이지만(왼쪽으로 밀어둠) 실제로 레이아웃은 정상적으로
+          계산되는 상태라 html2canvas로 캡처할 수 있습니다. 현재 선택된 날짜
+          탭과 상관없이 항상 "모든 날짜"를 통째로 담아서 내보냅니다. */}
+      <div
+        ref={exportRef}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: -10000,
+          width: 480,
+          background: "#ffffff",
+          padding: 28,
+        }}
+      >
+        <div style={{ fontSize: 22, fontWeight: 800, color: "var(--navy-dark)" }}>{trip.title}</div>
+        {trip.itinerary.summary && (
+          <div className="body-sm" style={{ marginTop: 6, marginBottom: 10 }}>
+            {trip.itinerary.summary}
+          </div>
+        )}
+        {days.map((d, i) => {
+          const tips = d?.travelTips?.length ? d.travelTips : i === 0 ? trip.itinerary.travelTips || [] : [];
+          return (
+            <div key={d.label + i} style={{ marginTop: 32 }}>
+              <div className={styles.dateRow}>
+                {d.label} · {d.date}
+              </div>
+              {d.condition && (
+                <div className="body-sm" style={{ marginTop: 4, marginBottom: 24 }}>
+                  {d.condition}
+                </div>
+              )}
+              <Timeline items={toExportItems(d.items)} />
+              {tips.length > 0 && (
+                <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+                  {tips.map((tip, j) => (
+                    <div
+                      key={j}
+                      style={{ display: "flex", gap: 8, fontSize: 13.5, lineHeight: 1.7, color: "var(--text-muted)" }}
+                    >
+                      <span aria-hidden="true" style={{ flexShrink: 0 }}>·</span>
+                      <span>{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
