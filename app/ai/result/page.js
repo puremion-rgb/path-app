@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Timeline from "@/components/Timeline";
 import Button from "@/components/Button";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { getTrip } from "@/lib/apiClient";
 import { getCurrentTripId } from "@/lib/tripStore";
 import styles from "./page.module.css";
@@ -31,7 +32,7 @@ export default function AiResultPage() {
   if (error) {
     return (
       <div className="screen-scroll no-tab">
-        <Header title="추천 여행 일정" backHref="/ai" />
+        <Header title="추천 여행 일정" backHref="/ai" showHome />
         <div className="container" style={{ paddingTop: 40, textAlign: "center" }}>
           <div className="body-sm">{error}</div>
           <Link href="/ai">
@@ -47,9 +48,10 @@ export default function AiResultPage() {
   if (!trip) {
     return (
       <div className="screen-scroll no-tab">
-        <Header title="추천 여행 일정" backHref="/ai" />
-        <div className="container" style={{ paddingTop: 40, textAlign: "center" }}>
-          불러오는 중...
+        <Header title="추천 여행 일정" backHref="/ai" showHome />
+        <div className="container" style={{ paddingTop: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <Spinner />
+          <div className="body-sm">불러오는 중...</div>
         </div>
       </div>
     );
@@ -60,7 +62,7 @@ export default function AiResultPage() {
 
   return (
     <div className="screen-scroll no-tab">
-      <Header title="추천 여행 일정" backHref="/ai" />
+      <Header title="추천 여행 일정" backHref="/ai" showHome />
       <div className="container">
         {trip.itinerary.summary && (
           <div className="body-sm" style={{ marginBottom: 14 }}>{trip.itinerary.summary}</div>

@@ -18,18 +18,11 @@ async function loadSpots() {
       query: "도쿄 인기 관광지",
       maxResultCount: 4,
     });
-    return places.map((p) => ({
-      id: p.placeId,
-      name: p.name,
-      time: p.category || "관광지",
-    }));
+    return places.map((p) => ({ id: p.placeId, name: p.name, time: p.category || "관광지" }));
   } catch (e) {
     // 이 섹션은 "있으면 좋은" 정보라 홈 화면 전체가 깨지지 않도록 실패하면 조용히 숨깁니다.
     // 대신 원인은 서버 콘솔(npm run dev를 실행 중인 터미널)에 남겨서 진단할 수 있게 합니다.
-    console.error(
-      "[home] '지금, 도쿄는 어때요?' 섹션용 장소 불러오기 실패:",
-      e.message,
-    );
+    console.error("[home] '지금, 도쿄는 어때요?' 섹션용 장소 불러오기 실패:", e.message);
     return [];
   }
 }
@@ -57,6 +50,11 @@ export default async function HomePage() {
   return (
     <TabShell title="홈">
       <LogoHeader />
+      {/* 다른 탭 화면들처럼 .screen-scroll로 감싸지 않아서, 여행이 여러 개
+          쌓이거나 추천 스팟이 많아 내용이 길어지면 스크롤이 전혀 안 되는
+          문제가 생길 수 있었습니다(같은 원인의 문제가 교통 팁 화면에서도
+          발견됨). */}
+      <div className="screen-scroll">
       <main className="flex flex-col gap-6 px-5 pt-2 lg:px-0">
         <Link
           href="/ai"
@@ -76,17 +74,12 @@ export default async function HomePage() {
 
         {spots.length > 0 && (
           <section>
-            <h2 className="mb-3 text-[17px] font-bold text-navy-deep">
-              지금, 도쿄는 어때요?
-            </h2>
+            <h2 className="mb-3 text-[17px] font-bold text-navy-deep">지금, 도쿄는 어때요?</h2>
 
             <div className="grid grid-cols-3 gap-3 lg:hidden">
               {spots.slice(0, 3).map((s) => (
                 <Link key={s.id} href={`/ai/place/${s.id}`}>
-                  <PlacePhoto
-                    name={s.name}
-                    className="aspect-square rounded-2xl"
-                  />
+                  <PlacePhoto name={s.name} className="aspect-square rounded-2xl" />
                 </Link>
               ))}
             </div>
@@ -94,14 +87,8 @@ export default async function HomePage() {
             <div className="hidden lg:grid lg:grid-cols-4 lg:gap-6">
               {spots.map((s) => (
                 <Link key={s.id} href={`/ai/place/${s.id}`} className="block">
-                  <PlacePhoto
-                    name={s.name}
-                    className="aspect-[4/3] w-full rounded-2xl"
-                    labelClassName="hidden"
-                  />
-                  <p className="mt-2.5 text-[15px] font-bold text-navy-deep">
-                    {s.name}
-                  </p>
+                  <PlacePhoto name={s.name} className="aspect-[4/3] w-full rounded-2xl" labelClassName="hidden" />
+                  <p className="mt-2.5 text-[15px] font-bold text-navy-deep">{s.name}</p>
                   <p className="mt-0.5 text-[13px] text-muted">{s.time}</p>
                 </Link>
               ))}
@@ -119,10 +106,7 @@ export default async function HomePage() {
                 </p>
                 {trip && (
                   <p className="mt-0.5 hidden text-[13px] text-muted lg:block">
-                    {(trip.itinerary?.days || [])
-                      .map((d) => d.date)
-                      .filter(Boolean)
-                      .join(" · ")}
+                    {(trip.itinerary?.days || []).map((d) => d.date).filter(Boolean).join(" · ")}
                   </p>
                 )}
               </div>
@@ -136,6 +120,7 @@ export default async function HomePage() {
           <ContinueChatCard trip={trip} lastMessage={lastMessage} />
         </div>
       </main>
+      </div>
     </TabShell>
   );
 }

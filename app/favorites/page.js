@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import PlacePhoto from "@/components/PlacePhoto";
 import Icon from "@/components/Icon";
 import EmptyState from "@/components/EmptyState";
+import Spinner from "@/components/Spinner";
 import Button from "@/components/Button";
 import { listFavorites, removeFavorite } from "@/lib/apiClient";
 
@@ -60,7 +61,10 @@ export default function FavoritesPage() {
           {error && <p className="mb-4 text-[13px] text-red-500">{error}</p>}
 
           {loading ? (
-            <p className="body-sm">불러오는 중...</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Spinner size={20} />
+              <p className="body-sm">불러오는 중...</p>
+            </div>
           ) : visible.length === 0 ? (
             <EmptyState
               icon="heart"

@@ -71,7 +71,7 @@ export default function MapRoutePage() {
     <TabShell crumb="지도" title="이동 경로" hideMobileNav>
       <div className="flex flex-1 flex-col lg:hidden">
         <div style={{ background: "var(--bg)" }}>
-          <Header title="이동 경로" backHref="/map" />
+          <Header title="이동 경로" backHref="/map" showHome />
         </div>
 
         <div className="screen-scroll no-tab" style={{ display: "flex", flexDirection: "column" }}>

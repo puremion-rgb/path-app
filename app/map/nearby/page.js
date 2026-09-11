@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import Button from "@/components/Button";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { searchPlacesNearby, listFavorites, addFavorite, removeFavorite, getTrip } from "@/lib/apiClient";
 import { getCurrentTripId } from "@/lib/tripStore";
 
@@ -88,7 +89,7 @@ export default function NearbyPage() {
           <span className="text-[15px] font-medium text-muted">지도</span>
           <h1 className="text-[20px] font-bold text-navy-deep">주변 {filter} 추천</h1>
         </header>
-        <Header title={`주변 ${filter} 추천`} className="lg:hidden" />
+        <Header title={`주변 ${filter} 추천`} className="lg:hidden" showHome />
 
         <div className="screen-scroll no-tab">
           <div className="container">
@@ -121,7 +122,12 @@ export default function NearbyPage() {
             </div>
 
             {error && <p className="body-sm" style={{ color: "var(--red)", marginTop: 14 }}>{error}</p>}
-            {loading && <p className="body-sm" style={{ marginTop: 14 }}>검색 중...</p>}
+            {loading && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14 }}>
+                <Spinner size={20} />
+                <p className="body-sm">검색 중...</p>
+              </div>
+            )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 18 }}>
               {!loading && places.length === 0 && (

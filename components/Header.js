@@ -5,13 +5,14 @@
 // className="lg:hidden" 을 넘겨 데스크톱 헤더와 중복되지 않게 합니다.
 import StackHeader from "./StackHeader";
 
-export default function Header({ title, onBack, backHref, right, className = "" }) {
+export default function Header({ title, onBack, backHref, right, showHome = false, className = "" }) {
   return (
     <StackHeader
       title={title}
       onBack={onBack}
       backHref={backHref}
       right={right}
+      showHome={showHome}
       className={className}
     />
   );

@@ -9,15 +9,9 @@ import Card from "@/components/Card";
 import Button from "@/components/Button";
 import EmptyState from "@/components/EmptyState";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { ChipRow, Chip } from "@/components/Chip";
-import {
-  listTrips,
-  listFavorites,
-  renameTrip,
-  deleteTrip,
-  setTripStatus,
-  placePhotoUrl,
-} from "@/lib/apiClient";
+import { listTrips, listFavorites, renameTrip, deleteTrip, setTripStatus, placePhotoUrl } from "@/lib/apiClient";
 import { setCurrentTripId } from "@/lib/tripStore";
 import styles from "./page.module.css";
 
@@ -57,8 +51,7 @@ export default function MyTripsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const list =
-    filter === "전체" ? trips : trips.filter((t) => t.status === filter);
+  const list = filter === "전체" ? trips : trips.filter((t) => t.status === filter);
 
   function openTrip(t) {
     setCurrentTripId(t.id);
@@ -103,12 +96,7 @@ export default function MyTripsPage() {
   async function handleDelete(t, e) {
     e.stopPropagation();
     setMenuOpenId(null);
-    if (
-      !window.confirm(
-        `"${t.title}" 일정을 삭제할까요?\n삭제하면 되돌릴 수 없어요.`,
-      )
-    )
-      return;
+    if (!window.confirm(`"${t.title}" 일정을 삭제할까요?\n삭제하면 되돌릴 수 없어요.`)) return;
     setBusyId(t.id);
     try {
       await deleteTrip(t.id);
@@ -141,18 +129,13 @@ export default function MyTripsPage() {
     const shareData = {
       title: t.title,
       text: `PATH로 만든 여행 일정: ${t.title}`,
-      url:
-        typeof window !== "undefined"
-          ? `${window.location.origin}/my/trips`
-          : undefined,
+      url: typeof window !== "undefined" ? `${window.location.origin}/my/trips` : undefined,
     };
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
         await navigator.share(shareData);
       } else if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(
-          `${shareData.text}\n${shareData.url}`,
-        );
+        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
         alert("일정 링크를 클립보드에 복사했어요.");
       } else {
         alert("이 브라우저에서는 공유하기를 지원하지 않아요.");
@@ -178,9 +161,10 @@ export default function MyTripsPage() {
           </ChipRow>
 
           {loading ? (
-            <p className="body-sm" style={{ marginTop: 20 }}>
-              불러오는 중...
-            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 20 }}>
+              <Spinner size={20} />
+              <p className="body-sm">불러오는 중...</p>
+            </div>
           ) : list.length === 0 ? (
             <EmptyState
               variant="dots"
@@ -188,15 +172,7 @@ export default function MyTripsPage() {
               desc="AI에게 말하면 첫 여행 일정을 만들어드려요"
               action={
                 <Link href="/ai">
-                  <Button
-                    variant="primary"
-                    style={{
-                      width: "auto",
-                      paddingLeft: 30,
-                      paddingRight: 30,
-                      borderRadius: 999,
-                    }}
-                  >
+                  <Button variant="primary" style={{ width: "auto", paddingLeft: 30, paddingRight: 30, borderRadius: 999 }}>
                     AI에게 물어보기 →
                   </Button>
                 </Link>
@@ -204,14 +180,7 @@ export default function MyTripsPage() {
             />
           ) : (
             <>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 20,
-                  marginTop: 16,
-                }}
-              >
+              <div style={{ display: "flex", flexDirection: "column", gap: 20, marginTop: 16 }}>
                 {list.map((t) => {
                   const isEditing = editingId === t.id;
                   const isBusy = busyId === t.id;
@@ -222,18 +191,12 @@ export default function MyTripsPage() {
                     <div
                       key={t.id}
                       onClick={() => !isEditing && openTrip(t)}
-                      style={{
-                        width: "100%",
-                        cursor: isEditing ? "default" : "pointer",
-                      }}
+                      style={{ width: "100%", cursor: isEditing ? "default" : "pointer" }}
                     >
                       <Card className={styles.tripCard}>
                         <div className={styles.cardHeader}>
                           <div className="body-sm" style={{ minWidth: 0 }}>
-                            {(t.itinerary?.days || [])
-                              .map((d) => d.date)
-                              .filter(Boolean)
-                              .join(" · ") || t.requestText}
+                            {(t.itinerary?.days || []).map((d) => d.date).filter(Boolean).join(" · ") || t.requestText}
                           </div>
 
                           {!isEditing && (
@@ -250,46 +213,17 @@ export default function MyTripsPage() {
 
                                 {isMenuOpen && (
                                   <>
-                                    <div
-                                      className={styles.menuOverlay}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setMenuOpenId(null);
-                                      }}
-                                    />
-                                    <div
-                                      onClick={(e) => e.stopPropagation()}
-                                      className={styles.menu}
-                                    >
-                                      <button
-                                        onClick={(e) => startEdit(t, e)}
-                                        className={styles.menuItem}
-                                      >
+                                    <div className={styles.menuOverlay} onClick={(e) => { e.stopPropagation(); setMenuOpenId(null); }} />
+                                    <div onClick={(e) => e.stopPropagation()} className={styles.menu}>
+                                      <button onClick={(e) => startEdit(t, e)} className={styles.menuItem}>
                                         <Icon name="edit" size={16} />
                                         일정 수정
                                       </button>
-                                      <button
-                                        onClick={(e) =>
-                                          handleToggleStatus(t, e)
-                                        }
-                                        className={styles.menuItem}
-                                      >
-                                        <Icon
-                                          name={
-                                            t.status === "active"
-                                              ? "check"
-                                              : "refresh"
-                                          }
-                                          size={16}
-                                        />
-                                        {t.status === "active"
-                                          ? "완료 표시"
-                                          : "완료 취소"}
+                                      <button onClick={(e) => handleToggleStatus(t, e)} className={styles.menuItem}>
+                                        <Icon name={t.status === "active" ? "check" : "refresh"} size={16} />
+                                        {t.status === "active" ? "완료로 표시" : "완료 취소"}
                                       </button>
-                                      <button
-                                        onClick={(e) => handleShare(t, e)}
-                                        className={styles.menuItem}
-                                      >
+                                      <button onClick={(e) => handleShare(t, e)} className={styles.menuItem}>
                                         <Icon name="share" size={16} />
                                         일정 공유
                                       </button>
@@ -306,20 +240,13 @@ export default function MyTripsPage() {
                                 )}
                               </div>
                               <span className={styles.divider} />
-                              <Icon
-                                name="chevronRight"
-                                size={20}
-                                className="text-navy"
-                              />
+                              <Icon name="chevronRight" size={20} className="text-navy" />
                             </div>
                           )}
                         </div>
 
                         {isEditing ? (
-                          <div
-                            onClick={(e) => e.stopPropagation()}
-                            className={styles.editRow}
-                          >
+                          <div onClick={(e) => e.stopPropagation()} className={styles.editRow}>
                             <input
                               autoFocus
                               value={editTitle}
@@ -354,9 +281,7 @@ export default function MyTripsPage() {
 
                         <span
                           className={`${styles.statusPill} ${
-                            t.status === "active"
-                              ? styles.statusActive
-                              : styles.statusArchived
+                            t.status === "active" ? styles.statusActive : styles.statusArchived
                           }`}
                         >
                           {FILTER_LABEL[t.status] || t.status}
@@ -364,11 +289,7 @@ export default function MyTripsPage() {
 
                         {photoName && (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={placePhotoUrl(photoName, 640)}
-                            alt={t.title}
-                            className={styles.tripImage}
-                          />
+                          <img src={placePhotoUrl(photoName, 640)} alt={t.title} className={styles.tripImage} />
                         )}
                       </Card>
                     </div>
@@ -377,39 +298,20 @@ export default function MyTripsPage() {
               </div>
 
               <Link href="/ai">
-                <Button
-                  variant="primary"
-                  style={{ marginTop: 28 }}
-                  icon={<Icon name="plus" size={18} />}
-                >
+                <Button variant="primary" style={{ marginTop: 28 }} icon={<Icon name="plus" size={18} />}>
                   새 여행 만들기
                 </Button>
               </Link>
 
               {favorites.length > 0 && (
                 <>
-                  <div
-                    className="h2"
-                    style={{ marginTop: 32, marginBottom: 20 }}
-                  >
+                  <div className="h2" style={{ marginTop: 32, marginBottom: 20 }}>
                     최근 저장한 장소
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 10,
-                    }}
-                  >
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                     {favorites.slice(0, 3).map((f) => (
                       <Link href={`/ai/place/${f.placeId}`} key={f.placeId}>
-                        <Card
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
+                        <Card style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                           <span style={{ fontWeight: 700 }}>{f.name}</span>
                           <Icon name="chevronRight" size={18} />
                         </Card>

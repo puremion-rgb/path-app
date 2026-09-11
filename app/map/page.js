@@ -8,6 +8,7 @@ import LogoHeader from "@/components/LogoHeader";
 import PlacePhoto from "@/components/PlacePhoto";
 import Icon from "@/components/Icon";
 import GoogleMapView from "@/components/GoogleMapView";
+import Spinner from "@/components/Spinner";
 import { searchPlacesByText, searchPlacesNearby } from "@/lib/apiClient";
 
 const FILTERS = ["전체", "관광지", "맛집", "숙소"];
@@ -123,7 +124,12 @@ export default function MapPage() {
             </div>
 
             {error && <p className="text-[13px] text-red-500">{error}</p>}
-            {loading && <p className="py-6 text-center text-[13px] text-muted">검색 중...</p>}
+            {loading && (
+              <div className="flex items-center justify-center gap-2.5 py-6">
+                <Spinner size={20} />
+                <p className="text-[13px] text-muted">검색 중...</p>
+              </div>
+            )}
 
             <div className="flex flex-col gap-4">
               {!loading && filteredList.length === 0 ? (

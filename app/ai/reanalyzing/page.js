@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Icon from "@/components/Icon";
 import Card from "@/components/Card";
+import Spinner from "@/components/Spinner";
 import { StepChecklist, ToolBar } from "@/components/Steps";
 import { reanalysisSteps } from "@/lib/mockData";
 import { modifyTrip, getTrip } from "@/lib/apiClient";
@@ -36,16 +37,24 @@ export default function AiReanalyzingPage() {
         const beforeItinerary = data.trip.itinerary;
         return modifyTrip(pending, (stepId, patch) => {
           setStatusMap((prev) => ({ ...prev, [stepId]: patch.status }));
-        }).then((trip) => ({ trip, beforeItinerary }));
+        }).then((res) => ({ ...res, beforeItinerary }));
       })
-      .then(({ trip, beforeItinerary }) => {
+      .then(({ trip, answer, beforeItinerary }) => {
         clearPendingModification();
-        setLastChangeDiff({ beforeItinerary, trip });
+        // 번역/일반 질문 답변은 일정을 바꾸지 않으므로, 변경 diff 화면 대신
+        // 채팅 화면으로 바로 돌아가 답변을 대화 형태로 보여줍니다. 이때는 일정
+        // 체크리스트를 "완료"로 채우지 않습니다 — 그렇게 하면 화면을 뜨기 직전
+        // 순간적으로 일정 재계산 체크리스트가 보였다가 사라지게 되기 때문입니다.
+        if (answer != null) {
+          setTimeout(() => router.push("/ai/chat"), 300);
+          return;
+        }
         setStatusMap((prev) => {
           const next = { ...prev };
           for (const s of reanalysisSteps) if (!next[s.id]) next[s.id] = "done";
           return next;
         });
+        setLastChangeDiff({ beforeItinerary, trip });
         setTimeout(() => router.push("/ai/changed"), 400);
       })
       .catch((err) => {
@@ -61,9 +70,15 @@ export default function AiReanalyzingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 번역/일반 질문에 대한 답변은 search_places/compute_route 같은 일정 관련 Tool을
+  // 전혀 쓰지 않습니다. 그래서 이 단계들 중 하나라도 진행된 적이 있어야만 "진짜 일정
+  // 재계산" 화면(체크리스트 + Google Places/Routes 등 표시)을 보여주고, 그렇지 않으면
+  // (번역/질문일 가능성이 높으면) 아래 일정 전용 UI 대신 단순 로딩 표시만 보여줍니다.
+  const hasScheduleToolActivity = reanalysisSteps.some((s) => statusMap[s.id]);
+
   return (
     <div className="screen-scroll no-tab">
-      <Header title="AI 재분석 중" backHref="/ai/chat" />
+      <Header title={hasScheduleToolActivity ? "AI 재분석 중" : "AI 응답 중"} backHref="/ai/chat" showHome />
       <div className="container">
         {failed ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: "60px 10px 0" }}>
@@ -104,15 +119,15 @@ export default function AiReanalyzingPage() {
               </button>
             </Card>
           </div>
-        ) : (
+        ) : hasScheduleToolActivity ? (
           <>
             <div style={{ display: "flex", justifyContent: "center", marginTop: 20, marginBottom: 14, color: "var(--navy)" }}>
               <Icon name="sparkle" size={34} filled />
             </div>
             <div className="h2" style={{ textAlign: "center" }}>
-              변경사항을 반영해서
+              요청하신 내용을
               <br />
-              다시 계산하고 있어요
+              확인하고 있어요
             </div>
             <div className="body-sm" style={{ textAlign: "center", marginTop: 4, marginBottom: 30 }}>
               잠시만 기다려주세요.
@@ -127,6 +142,22 @@ export default function AiReanalyzingPage() {
               </div>
             </Card>
           </>
+        ) : (
+          // 번역/일반 질문처럼 일정 관련 Tool이 전혀 실행되지 않는 요청은, 일정을
+          // 다시 계산하는 것처럼 보이는 체크리스트 화면 대신 단순 로딩 표시만 보여줍니다.
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              padding: "90px 10px 0",
+            }}
+          >
+            <Spinner size={40} />
+            <div className="body-sm" style={{ marginTop: 18 }}>
+              AI가 답변을 준비하고 있어요...
+            </div>
+          </div>
         )}
       </div>
     </div>

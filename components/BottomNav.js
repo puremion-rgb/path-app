@@ -27,8 +27,20 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="px-2 pb-[max(10px,env(safe-area-inset-bottom))] pt-2.5 lg:hidden">
-      <ul
+    <>
+      {/* 하단바가 둥근 알약 모양이라 모서리 바깥/틈으로 스크롤되는 목록 내용이
+          그대로 다 보여서 부자연스러웠던 부분을, 하단바 위쪽 내용이 위로
+          갈수록 배경색으로 옅어지는 그라데이션으로 자연스럽게 가려줍니다.
+          (이 컴포넌트를 담는 바깥 wrapper가 항상 position:fixed라서, 여기서
+          absolute + 하단바보다 큰 높이로 잡아주면 하단바 자체 높이를 넘어
+          위쪽까지 자연스럽게 페이드가 이어집니다.) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-28 lg:hidden"
+        style={{ background: "linear-gradient(to top, var(--bg) 0%, var(--bg) 30%, transparent 100%)" }}
+      />
+      <nav className="relative px-2 pb-[max(10px,env(safe-area-inset-bottom))] pt-2.5 lg:hidden">
+        <ul
         className="flex items-stretch justify-between rounded-[28px] border border-[#e7ecf4] bg-white py-2"
         style={{ boxShadow: "0 6px 16px 0 rgba(38,58,90,0.16)" }}
       >
@@ -54,7 +66,8 @@ export default function BottomNav() {
             </li>
           );
         })}
-      </ul>
-    </nav>
+        </ul>
+      </nav>
+    </>
   );
 }

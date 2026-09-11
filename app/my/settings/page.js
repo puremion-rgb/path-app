@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import TabShell from "@/components/TabShell";
 import Header from "@/components/Header";
 import Icon from "@/components/Icon";
@@ -60,10 +61,10 @@ export default function SettingsPage() {
           </Section>
 
           <Section title="기타">
-            <div className={styles.row}>
+            <Link href="/my/support" className={styles.row} style={{ cursor: "pointer", color: "inherit", textDecoration: "none" }}>
               문의하기
               <Icon name="chevronRight" size={16} />
-            </div>
+            </Link>
             <div className={styles.row} style={{ color: "var(--red)" }}>
               회원 탈퇴
             </div>

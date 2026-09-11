@@ -8,6 +8,7 @@ import Card from "@/components/Card";
 import Button from "@/components/Button";
 import RouteLegRow from "@/components/RouteLegRow";
 import GoogleMapView from "@/components/GoogleMapView";
+import Spinner from "@/components/Spinner";
 import { getTrip } from "@/lib/apiClient";
 import { getCurrentTripId } from "@/lib/tripStore";
 
@@ -32,7 +33,7 @@ export default function AiRoutePage() {
 
   return (
     <div className="screen-scroll no-tab" style={{ display: "flex", flexDirection: "column" }}>
-      <Header title="이동 경로" backHref="/ai/result" />
+      <Header title="이동 경로" backHref="/ai/result" showHome />
 
       <div style={{ position: "relative", flex: "1 1 auto", minHeight: 260 }}>
         <GoogleMapView points={mapPoints} polyline={routeSummary?.encodedPolyline} height="100%" />
@@ -41,7 +42,10 @@ export default function AiRoutePage() {
       <div className="container" style={{ marginTop: 16, marginBottom: 16 }}>
         {error && <div className="body-sm" style={{ color: "var(--red)", marginBottom: 10 }}>{error}</div>}
         {!trip ? (
-          <div className="body-sm">불러오는 중...</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Spinner size={20} />
+            <div className="body-sm">불러오는 중...</div>
+          </div>
         ) : routeSummary ? (
           <Card>
             <div style={{ fontWeight: 800, fontSize: 18 }}>

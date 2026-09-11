@@ -5,6 +5,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Button from "@/components/Button";
 import Icon from "@/components/Icon";
+import Spinner from "@/components/Spinner";
 import { getPlaceDetails, searchPlacesNearby, listFavorites, addFavorite, removeFavorite, placePhotoUrl } from "@/lib/apiClient";
 
 export default function PlaceDetailPage({ params }) {
@@ -61,7 +62,7 @@ export default function PlaceDetailPage({ params }) {
   if (error) {
     return (
       <div className="screen-scroll no-tab">
-        <Header title="장소 상세" backHref="/ai/result" />
+        <Header title="장소 상세" backHref="/ai/result" showHome />
         <div className="container" style={{ paddingTop: 40, textAlign: "center" }}>
           <div className="body-sm">{error}</div>
         </div>
@@ -72,8 +73,11 @@ export default function PlaceDetailPage({ params }) {
   if (!place) {
     return (
       <div className="screen-scroll no-tab">
-        <Header title="장소 상세" backHref="/ai/result" />
-        <div className="container" style={{ paddingTop: 40, textAlign: "center" }}>불러오는 중...</div>
+        <Header title="장소 상세" backHref="/ai/result" showHome />
+        <div className="container" style={{ paddingTop: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <Spinner />
+          <div className="body-sm">불러오는 중...</div>
+        </div>
       </div>
     );
   }
@@ -82,7 +86,7 @@ export default function PlaceDetailPage({ params }) {
 
   return (
     <div className="screen-scroll no-tab">
-      <Header title="장소 상세" backHref="/ai/result" />
+      <Header title="장소 상세" backHref="/ai/result" showHome />
       <div className="container">
         <div
           style={{

@@ -40,18 +40,23 @@
   z-index: 1;
 }
 
-.dot.stop {
+/* 예전에는 AI가 그때그때 정하는 tone 값(start/stop/hub/end)으로 점 색이
+   정해져서, 같은 종류의 일정도 색이 들쭉날쭉했습니다. category 6개를 색
+   6개로 전부 다르게 줘봤더니 이 앱의 남색+주황 중심 톤에 비해 너무
+   알록달록해 보여서, 지금은 3톤으로 단순화했습니다: 관광/숙소/쇼핑처럼
+   "방문지" 성격은 기본 남색, 맛집/카페처럼 "먹는 곳"은 주황, 이동은 존재감을
+   낮춘 회색입니다. */
+.dot.primary {
+  background: var(--navy);
+}
+.dot.food {
   background: var(--orange);
 }
-.dot.start {
-  background: var(--navy);
+.dot.transit {
+  background: var(--text-faint);
 }
-.dot.end {
-  background: var(--navy);
-}
-.dot.hub {
-  background: var(--navy);
-}
+/* AI와 대화해서 일정을 "수정"했을 때, 이번에 새로 바뀐 항목만 카테고리
+   색과 상관없이 빨간 점으로 눈에 띄게 표시합니다. */
 .dot.changed {
   background: var(--red);
 }

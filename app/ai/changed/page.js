@@ -31,7 +31,7 @@ export default function AiChangedPage() {
 
   return (
     <div className="screen-scroll no-tab">
-      <Header title="변경된 일정" backHref="/ai/chat" />
+      <Header title="변경된 일정" backHref="/ai/chat" showHome />
       <div className="container">
         <div
           style={{

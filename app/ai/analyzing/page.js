@@ -70,7 +70,7 @@ function AiAnalyzingInner() {
 
   return (
     <div className="screen-scroll no-tab">
-      <Header title="AI 분석 중" backHref="/ai" />
+      <Header title="AI 분석 중" backHref="/ai" showHome />
       <div className="container">
         {failed ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: "60px 10px 0" }}>

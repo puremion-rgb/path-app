@@ -1,0 +1,36 @@
+/* 설정(app/my/settings) 화면의 목록 줄(.row)과 글씨 스타일을 그대로 맞추기 위한
+   스타일입니다. 자주 묻는 질문 목록도 같은 폰트 크기/굵기/줄 간격을 쓰도록 합니다. */
+
+.faqRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.chevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+.answer {
+  padding: 0 0 16px;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  line-height: 1.7;
+}

@@ -134,15 +134,17 @@ export default function TipsPage() {
 
   return (
     <TabShell crumb="고객센터" title="일본 여행 팁">
-      <StackHeader title="" backHref="/my/support" className="lg:hidden" />
-      <div className="px-5 lg:max-w-xl lg:px-0">
-        <h1 className="text-[22px] font-extrabold leading-snug text-navy-deep">
-          처음 가도 걱정 없는
-          <br />
-          <span className="text-navy">일본 대중교통 이용법</span>
-        </h1>
-
-        <div className="mt-6 flex flex-col gap-4">
+      {/* 다른 MY 하위 메뉴(설정/프로필 수정/고객센터)와 똑같이, 화면 제목은
+          헤더 바에만 보여줍니다. 예전에는 헤더 제목을 비워두고 본문에 큰
+          문구("처음 가도 걱정 없는 ...")를 따로 넣어서 이 화면만 패턴이
+          달랐는데, 통일감을 위해 헤더 제목을 채우고 본문 큰 문구는 뺐습니다. */}
+      <StackHeader title="일본 여행 팁" backHref="/my/support" className="lg:hidden" />
+      {/* 다른 TabShell 화면들처럼 .screen-scroll로 감싸지 않아서, 앱 프레임을
+          overflow:hidden으로 고정한 이후(스크롤 안 되는 문제 수정 때) 이 화면만
+          내용이 길어져도 스크롤이 전혀 안 되던 문제가 있었습니다. */}
+      <div className="screen-scroll">
+      <div className="px-5 pt-5 lg:max-w-xl lg:px-0 lg:pt-0">
+        <div className="flex flex-col gap-4">
           {TIPS.map((t) => {
             const open = openId === t.id;
             return (
@@ -178,6 +180,7 @@ export default function TipsPage() {
           <p className="text-[13px] font-extrabold text-accent-orange">PATH AI</p>
           <p className="mt-1 text-[13px] text-navy-deep">여행 조건에 맞는 교통 팁도 함께 알려드려요.</p>
         </div>
+      </div>
       </div>
     </TabShell>
   );

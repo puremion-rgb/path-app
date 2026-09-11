@@ -1,0 +1,52 @@
+/* 사용자가 첨부한 로딩 아이콘(원형 conic-gradient 스피너) 디자인을 그대로 쓰되,
+   원래 파랑(#004cff) 대신 이 앱이 실제로 쓰는 남색(--navy)으로 색만 맞췄습니다. */
+.spinner {
+  position: relative;
+  border-radius: 50%;
+  background: rgba(30, 39, 97, 0.12);
+  flex-shrink: 0;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--thickness)), #000 calc(100% - var(--thickness) + 1px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--thickness)), #000 calc(100% - var(--thickness) + 1px));
+}
+
+.highlight {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(30, 39, 97, 0.03) 80deg,
+    rgba(30, 39, 97, 0.15) 145deg,
+    rgba(30, 39, 97, 0.4) 215deg,
+    rgba(30, 39, 97, 0.6) 280deg,
+    var(--navy) 345deg,
+    var(--navy) 360deg
+  );
+  transform-origin: center;
+  animation: pz-spin 0.9s linear infinite;
+}
+
+.highlight::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--thickness);
+  height: var(--thickness);
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--navy);
+}
+
+@keyframes pz-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .highlight {
+    animation-duration: 2.2s;
+  }
+}

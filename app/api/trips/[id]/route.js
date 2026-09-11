@@ -1,6 +1,7 @@
 import { getEffectiveUser } from "@/lib/auth";
 import { getTripById, toPublicTrip, deleteTrip, renameTrip, setTripStatus } from "@/lib/repo/trips";
 import { listChatByTrip } from "@/lib/repo/chat";
+import { listAskByTrip } from "@/lib/repo/ask";
 import { listToolLogsByTrip } from "@/lib/repo/toolLog";
 import { jsonOk, ApiError, withApiError } from "@/lib/apiUtils";
 
@@ -12,13 +13,15 @@ export const GET = withApiError(async (_req, { params }) => {
   if (!trip || trip.userId !== user.id) throw new ApiError("여행 일정을 찾을 수 없습니다.", 404);
 
   const chat = listChatByTrip(id).map((m) => ({ role: m.role, text: m.text, createdAt: m.createdAt }));
+  // "AI에게 질문하기"(번역/일반 질문) 화면 전용 대화 기록 — 일정 수정 대화(chat)와는 별개입니다.
+  const ask = listAskByTrip(id).map((m) => ({ role: m.role, text: m.text, createdAt: m.createdAt }));
   const toolLogs = listToolLogsByTrip(id).map((l) => ({
     tool: l.tool,
     ok: !!l.ok,
     createdAt: l.createdAt,
   }));
 
-  return jsonOk({ trip: toPublicTrip(trip), chat, toolLogs });
+  return jsonOk({ trip: toPublicTrip(trip), chat, ask, toolLogs });
 });
 
 // 여행 제목 수정, 진행중 ↔ 완료 상태 변경을 처리합니다.
