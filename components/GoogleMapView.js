@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { decodePolyline } from "@/lib/polyline";
+import { friendlyErrorMessage } from "@/lib/friendlyError";
 
 let loaderPromise = null;
 
@@ -87,7 +88,7 @@ export default function GoogleMapView({
           map.fitBounds(bounds, 48);
         }
       })
-      .catch((e) => setError(e.message));
+      .catch((e) => setError(friendlyErrorMessage(e.message)));
 
     return () => {
       cancelled = true;

@@ -7,6 +7,7 @@ import Button from "@/components/Button";
 import Icon from "@/components/Icon";
 import Spinner from "@/components/Spinner";
 import { getPlaceDetails, searchPlacesNearby, listFavorites, addFavorite, removeFavorite, placePhotoUrl } from "@/lib/apiClient";
+import { friendlyErrorMessage } from "@/lib/friendlyError";
 
 export default function PlaceDetailPage({ params }) {
   const [placeId, setPlaceId] = useState(null);
@@ -29,7 +30,7 @@ export default function PlaceDetailPage({ params }) {
           setNearby((near.places || []).filter((n) => n.placeId !== id).slice(0, 5));
         }
       } catch (e) {
-        setError(e.message || "장소 정보를 불러오지 못했습니다.");
+        setError(friendlyErrorMessage(e.message) || "장소 정보를 불러오지 못했습니다.");
       }
     })();
   }, [params]);
@@ -53,7 +54,7 @@ export default function PlaceDetailPage({ params }) {
         setSaved(true);
       }
     } catch (e) {
-      setError(e.message);
+      setError(friendlyErrorMessage(e.message));
     } finally {
       setBusy(false);
     }

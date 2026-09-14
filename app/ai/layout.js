@@ -4,9 +4,12 @@ import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 
 // AI 여행 플로우도 PC에서는 path_zip처럼 좌측 사이드바를 함께 보여줍니다.
-// /ai 와 /ai/chat 은 프로토타입처럼 좌우 2단(요청/미리보기, 대화/미리보기)
-// 이므로 폭 제한 없이 전체 폭을 쓰고, 나머지 플로우 화면은 가운데 정렬합니다.
-const WIDE_ROUTES = ["/ai", "/ai/chat"];
+// /ai(요청 만들기)는 프로토타입처럼 좌우 2단(요청 폼/미리보기)이 실제로
+// 구현돼 있어 폭 제한 없이 전체 폭을 씁니다. /ai/chat도 원래는 같은 2단
+// (대화/미리보기)으로 계획됐지만 실제로는 모바일과 동일한 1단 대화 화면만
+// 있어서, 전체 폭을 그대로 쓰면 입력창·버튼이 화면 끝까지 늘어나 어색해
+// 보였습니다. 다른 AI 플로우 화면들과 똑같이 가운데 정렬 폭으로 맞춥니다.
+const WIDE_ROUTES = ["/ai"];
 
 export default function AiLayout({ children }) {
   const pathname = usePathname();

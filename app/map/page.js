@@ -10,6 +10,7 @@ import Icon from "@/components/Icon";
 import GoogleMapView from "@/components/GoogleMapView";
 import Spinner from "@/components/Spinner";
 import { searchPlacesByText, searchPlacesNearby } from "@/lib/apiClient";
+import { friendlyErrorMessage } from "@/lib/friendlyError";
 
 const FILTERS = ["전체", "관광지", "맛집", "숙소"];
 const FILTER_TYPE = { 관광지: "tourist_attraction", 맛집: "restaurant", 숙소: "lodging" };
@@ -39,7 +40,10 @@ export default function MapPage() {
       }
       setPlaces(result.places || []);
     } catch (e) {
-      setError(e.message);
+      // API 키 미설정처럼 개발자를 위한 원본 오류 문구를 그대로 보여주면
+      // 실사용자에게는 알아보기 어려운(때로는 내부 설정 방법까지 노출되는)
+      // 문구가 되므로, 항상 알기 쉬운 문구로 바꿔서 보여줍니다.
+      setError(friendlyErrorMessage(e.message));
     } finally {
       setLoading(false);
     }
@@ -86,6 +90,14 @@ export default function MapPage() {
                 <Icon name="search" size={20} className="shrink-0 text-navy" />
               </button>
             </div>
+            {/* 검색 실패 시(예: 서비스 설정 문제) PC 화면에는 안내 문구가 보이는데
+                모바일에는 아예 표시가 안 돼서 그냥 결과가 없는 것처럼 보이는
+                문제가 있었습니다. 모바일에도 동일하게 보여줍니다. */}
+            {error && (
+              <div className="mt-3 rounded-2xl bg-white px-5 py-3 text-[13px] font-semibold text-red-500 shadow-[0_6px_20px_rgba(30,39,97,0.08)]">
+                {error}
+              </div>
+            )}
           </div>
         </div>
       </div>

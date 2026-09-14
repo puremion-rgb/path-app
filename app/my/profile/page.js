@@ -42,6 +42,11 @@ export default function ProfilePage() {
             height: 88,
             borderRadius: "50%",
             background: "var(--bg-flat)",
+            // PC 화면에서는 이 영역의 배경색이 아바타 자리표시자 배경색과
+            // 우연히 똑같아서(둘 다 --bg-flat) 동그라미가 아예 안 보이는
+            // 문제가 있었습니다. 어떤 배경 위에서도 항상 보이도록 테두리를
+            // 추가했습니다.
+            border: "1.5px solid var(--border-strong)",
             marginTop: 8,
           }}
         />

@@ -232,7 +232,12 @@ body {
   padding-bottom: 28px;
 }
 
-@media (min-width: 900px) {
+/* 하단 탭바(BottomNav)는 lg(1024px) 미만에서는 계속 보이는데, 이 규칙만
+   900px부터 적용되면 900~1023px 폭에서는 "탭바는 보이는데 스크롤 영역은
+   탭바 공간을 더 이상 확보하지 않는" 상태가 되어 마지막 콘텐츠가 탭바 뒤로
+   가려 보이는 문제가 있었습니다. 사이드바가 실제로 탭바를 대체하는 시점인
+   1024px에 맞춰서 함께 바꿉니다. */
+@media (min-width: 1024px) {
   .screen-scroll {
     padding-bottom: 28px;
   }

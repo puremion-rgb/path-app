@@ -9,6 +9,7 @@ import Icon from "@/components/Icon";
 import Spinner from "@/components/Spinner";
 import { searchPlacesNearby, listFavorites, addFavorite, removeFavorite, getTrip } from "@/lib/apiClient";
 import { getCurrentTripId } from "@/lib/tripStore";
+import { friendlyErrorMessage } from "@/lib/friendlyError";
 
 const FILTERS = { 맛집: "restaurant", 카페: "cafe", 관광지: "tourist_attraction" };
 const TOKYO_STATION = { lat: 35.681236, lng: 139.767125 };
@@ -47,7 +48,7 @@ export default function NearbyPage() {
     setError("");
     searchPlacesNearby({ lat: center.lat, lng: center.lng, radius: 1200, type: FILTERS[filter] })
       .then((data) => setPlaces(data.places || []))
-      .catch((e) => setError(e.message))
+      .catch((e) => setError(friendlyErrorMessage(e.message)))
       .finally(() => setLoading(false));
   }, [filter, center]);
 

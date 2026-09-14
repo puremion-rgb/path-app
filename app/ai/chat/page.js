@@ -11,6 +11,7 @@ import Spinner from "@/components/Spinner";
 import { getTrip, modifyTrip } from "@/lib/apiClient";
 import { getCurrentTripId, setLastChangeDiff } from "@/lib/tripStore";
 import { friendlyErrorMessage } from "@/lib/friendlyError";
+import { useSpeechRecognition } from "@/lib/useSpeechRecognition";
 import styles from "./page.module.css";
 
 // 진행 단계(step) id별로 대화창 안에 잠깐 보여줄 안내 문구입니다.
@@ -35,6 +36,16 @@ export default function AiChatPage() {
   const [pendingLabel, setPendingLabel] = useState("");
   const [sendError, setSendError] = useState("");
   const scrollRef = useRef(null);
+
+  // 걸어다니면서 타이핑하기 어려울 때 말로 입력할 수 있도록 브라우저 내장
+  // 음성 인식을 붙였습니다. 인식된 문장은 입력창에 채워지기만 하고, 전송은
+  // 기존처럼 사용자가 직접 "전송" 버튼을 눌러야 합니다(잘못 인식된 문장이
+  // 바로 전송되지 않도록).
+  const { supported: micSupported, listening, error: micError, toggle: toggleMic } = useSpeechRecognition({
+    onResult: (transcript) => {
+      setText((prev) => (prev ? `${prev} ${transcript}` : transcript));
+    },
+  });
 
   useEffect(() => {
     const id = getCurrentTripId();
@@ -151,9 +162,26 @@ export default function AiChatPage() {
         </div>
       </div>
 
+      {micError && (
+        <div className="container" style={{ paddingTop: 0, paddingBottom: 0 }}>
+          <div className="body-sm" style={{ color: "var(--red)", margin: "8px 0 0" }}>{micError}</div>
+        </div>
+      )}
+
       <div className={styles.inputBar}>
+        {micSupported && (
+          <button
+            type="button"
+            className={`${styles.micBtn} ${listening ? styles.micBtnActive : ""}`}
+            onClick={toggleMic}
+            aria-label={listening ? "음성 입력 중지" : "음성으로 입력"}
+            disabled={sending}
+          >
+            <Icon name="mic" size={16} />
+          </button>
+        )}
         <input
-          placeholder="추가로 요청해보세요..."
+          placeholder={listening ? "듣고 있어요..." : "추가로 요청해보세요..."}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}

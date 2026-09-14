@@ -96,6 +96,12 @@
 
 .inputBar input {
   flex: 1;
+  /* input 요소는 기본적으로 flex 아이템으로 줄어들 수 있는 최소 폭(min-width)이
+     내용 크기 기준으로 잡혀서, 마이크 버튼을 추가한 뒤로는 좁은 화면에서
+     입력창+버튼들 전체 너비가 화면 폭을 넘어 전송 버튼이 화면 밖으로
+     잘려나가는 문제가 있었습니다. min-width: 0으로 flex 계산이 실제 남는
+     공간 기준으로 줄어들게 했습니다. */
+  min-width: 0;
   border: none;
   outline: none;
   font-size: 14px;
@@ -112,4 +118,39 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+/* 음성 입력(마이크) 버튼 — 평소엔 옅은 톤이다가, 듣고 있는 동안에는 붉은색으로
+   바뀌고 살짝 맥박치는 애니메이션을 줘서 지금 녹음 중이라는 걸 눈으로 바로
+   알 수 있게 했습니다. */
+.micBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--bg-flat);
+  color: var(--navy);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.micBtn:disabled {
+  opacity: 0.5;
+}
+
+.micBtnActive {
+  background: var(--red);
+  color: var(--white);
+  animation: micPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(230, 57, 70, 0);
+  }
 }
