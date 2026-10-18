@@ -1,19 +1,16 @@
 # PATH — AI와 대화하며 완성하는 일본 여행 플래너
 
-> Journeys Powered by Conversation
-> 일정을 처음 짜는 것도, 현지에서 바꾸는 것도 **말 한마디**로 끝내는 AI 여행 플래너입니다.
-> 채팅으로 일정을 만들고, 실시간 교통 정보를 반영한 동선을 지도 위에서 바로 확인할 수 있어요.
+> "신주쿠에서 걷기 최소로" 한마디면 끝.
+> AI가 구글맵과 실시간 교통 정보를 바탕으로 동선을 직접 확인해 여행 일정을 짜 주는 모바일 웹 서비스입니다.
 
 **🔗 서비스 바로가기** · https://wa26bteam01.yjjob.kr/splash
 **🎨 Figma** · https://www.figma.com/design/UMFFJJF0zPpLyxHYHRZlCA/path?node-id=2-3
 
 <p>
-  <img src="./docs/path-splash.webp" width="180" alt="시작 화면">
-  <img src="./docs/path-plan.webp" width="180" alt="추천 여행 일정">
-  <img src="./docs/path-route.webp" width="180" alt="일정 · 경로 지도">
+  <img src="./docs/path-splash.webp" width="200" alt="스플래시">
+  <img src="./docs/path-plan.webp" width="200" alt="추천 여행 일정">
+  <img src="./docs/path-route.webp" width="200" alt="여행 일정 지도">
 </p>
-
-<img src="./docs/path-pc.webp" width="560" alt="PC 화면 — 홈 · AI 여행 만들기">
 
 <br>
 
@@ -22,29 +19,54 @@
 | 항목 | 내용 |
 | --- | --- |
 | 기간 | 2026.09.01 – 2026.09.30 |
-| 팀 | 4명 |
+| 인원 | 4명 (팀 프로젝트) |
 | 담당 | UI/UX 디자인 · 프론트엔드 |
-| 플랫폼 | 반응형 웹 (모바일 · PC) |
+| 플랫폼 | 모바일 웹 (PC 레이아웃 대응) |
 
 <br>
 
 ## 🤔 해결하고 싶었던 문제
 
 여행 일정은 **처음 짜는 것도, 현지에서 바꾸는 것도 번거롭습니다.**
-장소를 찾고, 이동 동선과 교통편을 따로 검색하고, 일정이 틀어지면 처음부터 다시 맞춰야 하기 때문이에요.
+가고 싶은 장소를 고른 뒤에도 동선과 교통편을 따로 찾아야 하고, 계획이 틀어지면 처음부터 다시 검색해야 해요.
 
-PATH는 AI와 채팅하는 것만으로 일정을 만들고, 말 한마디로 바로 고칠 수 있게 합니다.
+PATH는 이 과정을 **대화 한 번**으로 줄이는 것을 목표로 했습니다.
 
 <br>
 
 ## ✨ 주요 기능
 
-- **AI와 채팅하며 일정 완성**: 가고 싶은 곳과 취향을 대화로 알려 주면 AI가 장소를 찾고 일정을 구성합니다. 분석 과정은 단계별 체크리스트로 보여 줍니다.
-- **말 한마디로 일정 즉시 수정**: 채팅으로 요청하면 일정이 바로 바뀝니다. 음성 입력도 지원합니다.
-- **실시간 교통 기반 동선 추천**: Google Routes API로 대중교통 경로를 계산하고, 도쿄 지하철 운행 정보(ODPT)가 연결되어 있으면 지연 · 운휴 여부를 함께 안내합니다.
-- **지도에서 위치 · 교통 확인**: 일정의 장소와 이동 경로를 지도에서 보고, 주변 장소와 장소 상세 정보를 확인합니다.
-- **AI에게 질문하기**: 환율(엔 → 원)처럼 여행 중 궁금한 점을 바로 물어보고, 일본 여행 지식(RAG)에서 근거를 찾아 답합니다.
-- **일정 저장 · 내보내기**: 일정을 저장하고 찜할 수 있고, 해외에서 데이터가 불안정할 때를 대비해 이미지나 PDF로 저장할 수 있습니다.
+### 1. AI 여행 만들기
+- 원하는 여행을 자연어로 입력하면 AI가 일정을 만들어 줍니다.
+  예: *"내일 오전 9시 신주쿠에서 출발해서 센소지와 스카이트리를 가고 싶어. 부모님과 함께라 많이 걷지 않는 일정으로 만들어 줘."*
+- **빠른 조건** 칩으로 도보 최소 · 환승 최소 · 맛집 포함 · 관광 위주 · 여유롭게 · 가족 여행을 한 번에 선택할 수 있어요.
+- 처음 쓰는 사용자를 위해 자주 쓰는 요청 예시를 함께 보여 줍니다.
+
+### 2. 추천 여행 일정
+- 일차별 탭으로 하루 일정을 시간순 타임라인으로 확인합니다.
+- 하루 **예상 소요 시간**과 머무는 시간 · 이동 시간 비율을 함께 보여 줍니다.
+- 일정은 대화로 다시 요청해 수정할 수 있습니다.
+
+### 3. 지도에서 동선 확인
+- 하루 방문지를 A → F 순서로 지도에 표시하고 전체 경로를 보여 줍니다.
+- 방문을 마치는 시각에 맞춰 다음 경로와 방문 시각을 다시 계산합니다.
+- 지도 탭에서는 장소 검색과 관광지 · 맛집 · 숙소 필터를 제공합니다.
+
+### 4. 홈 · 찜
+- 홈에서 현재 도시의 추천 장소, 내 여행 요약, 최근 AI 대화 이어하기를 바로 확인합니다.
+- 마음에 드는 장소를 찜해 카테고리별로 모아 볼 수 있고, 사진과 장소 정보의 출처를 함께 표시합니다.
+
+<p>
+  <img src="./docs/path-home.webp" width="180" alt="홈">
+  <img src="./docs/path-ai.webp" width="180" alt="AI 여행 만들기">
+  <img src="./docs/path-map.webp" width="180" alt="지도">
+  <img src="./docs/path-wish.webp" width="180" alt="찜">
+</p>
+
+### 5. PC 레이아웃
+모바일 우선으로 설계하고, PC에서는 하단 탭 대신 왼쪽 사이드바 내비게이션으로 전환되도록 대응했습니다.
+
+<img src="./docs/path-pc.webp" width="720" alt="PC 화면">
 
 <br>
 
@@ -52,65 +74,16 @@ PATH는 AI와 채팅하는 것만으로 일정을 만들고, 말 한마디로 �
 
 | 구분 | 사용 기술 |
 | --- | --- |
-| Framework | Next.js 14 (App Router), React 18 |
-| Language | JavaScript |
-| Styling | CSS Modules, Tailwind CSS |
-| AI | Google Gemini, LangChain (Agent · Tool 호출), Gemini 임베딩 기반 RAG |
-| 지도 · 경로 | Google Maps, Places API (New), Routes API |
-| 교통 정보 | ODPT 공공교통 오픈데이터 (선택) |
-| 환율 | Frankfurter API |
-| DB | SQLite (Node.js 내장 `node:sqlite`) |
-| 인증 | JWT (`jose`), `bcryptjs` |
-| 내보내기 | html2canvas, jsPDF |
-| Font | Pretendard |
+| Frontend | React, TypeScript |
+| AI | Google Gemini |
+| 지도 | Google Maps API |
+| Database | MySQL |
+| Design | Figma |
 
 <br>
 
-## 📁 폴더 구조
+## 🎨 디자인 포인트
 
-```
-app/
-  home/              홈
-  ai/                AI 여행 만들기 (질문 · 채팅 · 분석 · 결과 · 경로 · 장소 상세)
-  map/               지도 (주변 · 경로)
-  favorites/         찜
-  my/                MY (프로필 · 내 여행 · 설정 · 고객센터)
-  login/             로그인
-  api/               API 라우트 (agent · auth · favorites · places · trips)
-components/          공통 컴포넌트 (BottomNav, Header, Timeline, GoogleMapView 등)
-lib/
-  agent/             AI Agent (프롬프트 · Tool · 실행)
-  google/            Google Places · Routes 연동
-  repo/              DB 접근 (users, trips, favorites, chat 등)
-  db.js              SQLite 연결과 테이블 생성
-  odpt.js            ODPT 교통 정보 연동
-  exchangeRate.js    환율 조회
-  exportItinerary.js 일정 이미지 · PDF 저장
-scripts/
-  seed-knowledge.mjs RAG 지식베이스 시드
-```
-
-<br>
-
-## 🚀 실행 방법
-
-Node.js **22.5 이상**이 필요합니다. (내장 SQLite를 사용합니다.)
-
-```bash
-npm install
-cp .env.example .env   # 값을 채워 주세요
-npm run db:seed        # (선택) AI가 참고할 일본 여행 지식 등록
-npm run dev
-```
-
-`.env`에 넣을 값은 아래와 같습니다.
-
-| 변수 | 설명 | 필수 |
-| --- | --- | --- |
-| `AUTH_SECRET` | 로그인 세션 서명용 임의의 긴 문자열 | ✅ |
-| `GEMINI_API_KEY` | Google Gemini API 키 | ✅ |
-| `GOOGLE_MAPS_SERVER_KEY` | Places API (New) · Routes API 사용이 켜진 서버용 키 | ✅ |
-| `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY` | 지도 표시용 브라우저 키 | ✅ |
-| `ODPT_API_KEY` | 도쿄 지하철 실시간 운행 정보 (없으면 Google 경로만 안내) | 선택 |
-
-DB 파일(`data/app.db`)은 처음 실행할 때 자동으로 만들어집니다.
+- **입력 부담 줄이기**: 빈 입력창 대신 예시 문장과 조건 칩을 먼저 보여 줘서, 무엇을 써야 할지 고민하지 않고 시작할 수 있게 했습니다.
+- **신뢰할 수 있는 결과**: AI가 만든 일정에 예상 소요 시간과 이동 비율을 함께 보여 주고, "실시간 지연은 반영하지 않는다"는 안내를 명시했습니다.
+- **현지에서 쓰기 편하게**: 한 손으로 조작하는 상황을 고려해 주요 동작을 하단 탭과 화면 아래쪽 버튼에 배치했습니다.
