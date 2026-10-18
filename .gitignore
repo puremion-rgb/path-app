@@ -5,3 +5,8 @@ node_modules
 .env.local
 /prisma/dev.db
 /prisma/dev.db-journal
+
+# 실행하면 만들어지는 DB 파일 (테스트 계정 · 대화 기록이 들어 있어 올리지 않습니다)
+/data/*.db
+/data/*.db-shm
+/data/*.db-wal
