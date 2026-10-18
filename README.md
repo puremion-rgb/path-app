@@ -56,13 +56,6 @@ PATH는 이 과정을 **대화 한 번**으로 줄이는 것을 목표로 했습
 - 홈에서 현재 도시의 추천 장소, 내 여행 요약, 최근 AI 대화 이어하기를 바로 확인합니다.
 - 마음에 드는 장소를 찜해 카테고리별로 모아 볼 수 있고, 사진과 장소 정보의 출처를 함께 표시합니다.
 
-<p>
-  <img src="./docs/path-home.webp" width="180" alt="홈">
-  <img src="./docs/path-ai.webp" width="180" alt="AI 여행 만들기">
-  <img src="./docs/path-map.webp" width="180" alt="지도">
-  <img src="./docs/path-wish.webp" width="180" alt="찜">
-</p>
-
 ### 5. PC 레이아웃
 모바일 우선으로 설계하고, PC에서는 하단 탭 대신 왼쪽 사이드바 내비게이션으로 전환되도록 대응했습니다.
 
