@@ -3,9 +3,6 @@
 > "신주쿠에서 걷기 최소로" 한마디면 끝.
 > AI가 구글맵과 실시간 교통 정보를 바탕으로 동선을 직접 확인해 여행 일정을 짜 주는 모바일 웹 서비스입니다.
 
-**🔗 서비스 바로가기** · https://wa26bteam01.yjjob.kr/splash
-**🎨 Figma** · https://www.figma.com/design/UMFFJJF0zPpLyxHYHRZlCA/path?node-id=2-3
-
 <p>
   <img src="./docs/path-splash.webp" width="200" alt="스플래시">
   <img src="./docs/path-plan.webp" width="200" alt="추천 여행 일정">
